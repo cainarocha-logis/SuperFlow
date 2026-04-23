@@ -23,9 +23,10 @@ import { BranchManagement } from '../components/BranchManagement';
 import { ExpenseTypeManagement } from '../components/ExpenseTypeManagement';
 import { CostCenterManagement } from '../components/CostCenterManagement';
 import { ExpenseModal } from '../components/ExpenseModal';
+import { UserManagement } from '../components/UserManagement';
 import { formatCurrency } from '../lib/utils';
 
-type TabType = 'CONFERENCIA' | 'FILIAIS' | 'TIPOS' | 'CENTROS' | 'CONFIG';
+type TabType = 'CONFERENCIA' | 'FILIAIS' | 'TIPOS' | 'CENTROS' | 'USUARIOS' | 'CONFIG';
 
 export const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState<TabType>('CONFERENCIA');
@@ -202,6 +203,9 @@ export const AdminDashboard = () => {
           <button onClick={() => setActiveTab('CENTROS')} style={navButtonStyle(activeTab === 'CENTROS')}>
             <FileText size={20} /> Centros de Custo
           </button>
+          <button onClick={() => setActiveTab('USUARIOS')} style={navButtonStyle(activeTab === 'USUARIOS')}>
+            <UserIcon size={20} /> Usuários
+          </button>
           <button onClick={() => setActiveTab('CONFIG')} style={navButtonStyle(activeTab === 'CONFIG')}>
             <SettingsIcon size={20} /> Configurações
           </button>
@@ -222,6 +226,7 @@ export const AdminDashboard = () => {
                   {activeTab === 'FILIAIS' && 'Gerenciar Filiais'}
                   {activeTab === 'TIPOS' && 'Tipos de Despesa'}
                   {activeTab === 'CENTROS' && 'Centros de Custo'}
+                  {activeTab === 'USUARIOS' && 'Gerenciar Usuários'}
                 </h2>
               </div>
               <div style={{ backgroundColor: 'white', borderRadius: '0.75rem', padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', border: '1px solid #e2e8f0' }}>
@@ -335,6 +340,7 @@ export const AdminDashboard = () => {
         {activeTab === 'FILIAIS' && <BranchManagement />}
         {activeTab === 'TIPOS' && <ExpenseTypeManagement />}
         {activeTab === 'CENTROS' && <CostCenterManagement />}
+        {activeTab === 'USUARIOS' && <UserManagement />}
 
         <ExpenseModal
           isOpen={!!selectedExpense}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { LogIn, Truck, Lock, Mail } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { useSettings } from '../contexts/SettingsContext';
@@ -121,6 +121,13 @@ export const Login = () => {
             )}
           </button>
         </form>
+
+        <div style={{ marginTop: '1.5rem', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1.5rem' }}>
+          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.875rem', marginBottom: '0.5rem' }}>Ainda não tem acesso?</p>
+          <Link to="/primeiro-acesso" style={{ color: 'var(--primary-light)', textDecoration: 'none', fontWeight: '700', fontSize: '0.875rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            Primeiro acesso? Clique aqui
+          </Link>
+        </div>
 
         <style>
           {`

@@ -6,6 +6,7 @@ import { Login } from './pages/Login';
 import { LancadorDashboard } from './pages/LancadorDashboard';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { LancadorStats } from './pages/LancadorStats';
+import { FirstAccess } from './pages/FirstAccess';
 
 const ProtectedRoute = ({ children, requireAdmin = false }: { children: React.ReactNode, requireAdmin?: boolean }) => {
   const { user, profile, loading } = useAuth();
@@ -39,6 +40,7 @@ function App() {
         <Router>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/primeiro-acesso" element={<FirstAccess />} />
             <Route path="/admin" element={<ProtectedRoute requireAdmin><AdminDashboard /></ProtectedRoute>} />
             <Route path="/lancador" element={<ProtectedRoute><LancadorDashboard /></ProtectedRoute>} />
             <Route path="/lancador/stats" element={<ProtectedRoute><LancadorStats /></ProtectedRoute>} />
