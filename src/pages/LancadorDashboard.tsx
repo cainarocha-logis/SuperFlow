@@ -11,7 +11,10 @@ import {
   Settings,
   Menu,
   X,
-  LogOut
+  LogOut,
+  Camera,
+  CheckCircle2,
+  Loader2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
@@ -28,7 +31,9 @@ export const LancadorDashboard = () => {
   const { logoUrl } = useSettings();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({ active: false, current: 0, total: 0 });
 
   const [expenses, setExpenses] = useState<any[]>([]);
   const [thumbnails, setThumbnails] = useState<Record<string, string>>({});
@@ -163,6 +168,35 @@ export const LancadorDashboard = () => {
     position: 'relative',
     transition: '0.2s',
     padding: '0'
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    
+    setUploadProgress({ active: true, current: 0, total: files.length });
+    
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileName = `${user?.id}/${Date.now()}_${i}.${file.name.split('.').pop()}`;
+        const { error: upErr } = await supabase.storage.from('receipts').upload(fileName, file);
+        if (upErr) throw upErr;
+
+        const { data: exp, error: insErr } = await supabase.from('expenses').insert({ user_id: user!.id, status: 'RASCUNHO' }).select().single();
+        if (insErr) throw insErr;
+
+        await supabase.from('expense_attachments').insert({ expense_id: exp.id, storage_path: fileName, file_type: file.type });
+        
+        setUploadProgress(prev => ({ ...prev, current: i + 1 }));
+      }
+      fetchExpenses();
+    } catch (err: any) {
+      alert('Erro ao enviar notas: ' + err.message);
+    } finally {
+      setTimeout(() => setUploadProgress({ active: false, current: 0, total: 0 }), 2000);
+      e.target.value = '';
+    }
   };
 
   return (
@@ -316,37 +350,36 @@ export const LancadorDashboard = () => {
         )}
         </div>
 
-      <div style={{ position: 'fixed', bottom: '2rem', left: '0', right: '0', display: 'flex', justifyContent: 'center', zIndex: 60 }}>
-        <button onClick={() => fileInputRef.current?.click()} className="btn-primary" style={{ padding: '1rem 3rem', borderRadius: '3rem', boxShadow: '0 10px 30px rgba(36, 152, 207, 0.4)', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.75rem', letterSpacing: '0.5px' }}>
-          <Plus size={24} strokeWidth={3} /> ADICIONAR NOTAS
-        </button>
+      <div style={{ position: 'fixed', bottom: '1.5rem', left: '0', right: '0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', zIndex: 60 }}>
+        {uploadProgress.active && (
+          <div className="animate-fade-in" style={{ backgroundColor: 'white', padding: '0.75rem 1.5rem', borderRadius: '2rem', boxShadow: '0 10px 25px rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--primary-dark)', fontWeight: 800, fontSize: '0.875rem' }}>
+            {uploadProgress.current < uploadProgress.total ? (
+              <>
+                <Loader2 size={18} className="animate-spin" />
+                Enviando {uploadProgress.current + 1} de {uploadProgress.total}...
+              </>
+            ) : (
+              <>
+                <CheckCircle2 size={18} color="#10b981" />
+                {uploadProgress.total} Nota(s) enviada(s)!
+              </>
+            )}
+          </div>
+        )}
+
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <button onClick={() => cameraInputRef.current?.click()} className="btn-primary" style={{ width: '60px', height: '60px', borderRadius: '50%', boxShadow: '0 10px 30px rgba(36, 152, 207, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Camera size={28} strokeWidth={2.5} />
+          </button>
+          <button onClick={() => fileInputRef.current?.click()} className="btn-primary" style={{ padding: '0 2rem', height: '60px', borderRadius: '3rem', boxShadow: '0 10px 30px rgba(36, 152, 207, 0.4)', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.75rem', letterSpacing: '0.5px' }}>
+            <Plus size={24} strokeWidth={3} /> ADICIONAR NOTAS
+          </button>
+        </div>
       </div>
 
-      <input type="file" multiple accept="image/*" ref={fileInputRef} style={{ display: 'none' }} onChange={async (e) => {
-        const files = e.target.files;
-        if (!files) return;
-        setLoading(true);
-        try {
-          for (let i = 0; i < files.length; i++) {
-            const file = files[i];
-            const fileName = `${user?.id}/${Date.now()}_${i}.${file.name.split('.').pop()}`;
-            const { error: upErr } = await supabase.storage.from('receipts').upload(fileName, file);
-            if (upErr) throw upErr;
+      <input type="file" multiple accept="image/*" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileUpload} />
+      <input type="file" accept="image/*" capture="environment" ref={cameraInputRef} style={{ display: 'none' }} onChange={handleFileUpload} />
 
-            const { data: exp, error: insErr } = await supabase.from('expenses').insert({ user_id: user!.id, status: 'RASCUNHO' }).select().single();
-            if (insErr) throw insErr;
-
-            const { error: attErr } = await supabase.from('expense_attachments').insert({ expense_id: exp.id, storage_path: fileName, file_type: file.type });
-            if (attErr) throw attErr;
-          }
-          fetchExpenses();
-        } catch (err: any) {
-          alert('Erro ao enviar notas: ' + err.message);
-        } finally {
-          setLoading(false);
-          e.target.value = '';
-        }
-      }} />
 
       {loading && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }}>
