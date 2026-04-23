@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { X, ZoomIn, ZoomOut, Save, Send, AlertCircle, CheckCircle, XCircle, History, Eye } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { X, ZoomIn, ZoomOut, Save, Send, AlertCircle, CheckCircle, XCircle, History, Eye, Camera } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import type { Tables } from '../types/database.types';
 import { formatCurrency } from '../lib/utils';
@@ -46,6 +46,11 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [logs, setLogs] = useState<Tables<'expense_audit_logs'>[]>([]);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+
+  const isRejected = expense?.status === 'REJEITADO';
+  const canReplacePhoto = isRejected && !isAdminView;
 
   const isReadOnly = !!(isAdminView || (expense && ['ENVIADO', 'APROVADO', 'EM_ANALISE'].includes(expense.status)));
   const selectedType = (expenseTypes || []).find((t: any) => t.id === formData.expense_type_id);
@@ -90,6 +95,44 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
       console.error(e);
     }
   };
+
+  const replacePhoto = async (file: File) => {
+    if (!expense) return;
+    setUploadingPhoto(true);
+    setError(null);
+    try {
+      // Delete existing attachment
+      const { data: existingAttachments } = await supabase
+        .from('expense_attachments')
+        .select('id, storage_path')
+        .eq('expense_id', expense.id);
+
+      if (existingAttachments && existingAttachments.length > 0) {
+        await supabase.storage.from('receipts').remove(existingAttachments.map(a => a.storage_path));
+        await supabase.from('expense_attachments').delete().eq('expense_id', expense.id);
+      }
+
+      // Upload new file
+      const ext = file.name.split('.').pop();
+      const fileName = `${expense.user_id}/${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from('receipts').upload(fileName, file);
+      if (upErr) throw upErr;
+
+      const { error: attErr } = await supabase
+        .from('expense_attachments')
+        .insert({ expense_id: expense.id, storage_path: fileName, file_type: file.type });
+      if (attErr) throw attErr;
+
+      // Refresh image
+      await fetchImage(expense.id);
+    } catch (err: unknown) {
+      const e = err as Error;
+      setError(e.message || 'Erro ao substituir foto');
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
+
 
   const fetchLogs = async (expenseId: string) => {
     try {
@@ -223,12 +266,45 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
       )}
 
       <div className="modal-content-wrapper">
-        <div className="modal-image-area" style={{ flex: '1.2', backgroundColor: '#e2e8f0', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '300px' }}>
+        <div className="modal-image-area" style={{ flex: '1.2', backgroundColor: '#1e293b', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '300px' }}>
           {imageUrl
             ? <img src={imageUrl} alt="Comprovante" style={{ transform: `scale(${zoom})`, transition: 'transform 0.2s', maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} />
             : <p style={{ color: '#94a3b8' }}>Sem imagem</p>
           }
-          <div style={{ position: 'absolute', bottom: '1rem', right: '1rem', display: 'flex', gap: '0.5rem', background: 'white', padding: '0.25rem', borderRadius: '2rem' }}>
+
+          {/* Replace photo button — only for REJEITADO */}
+          {canReplacePhoto && (
+            <div style={{ position: 'absolute', top: '1rem', left: '50%', transform: 'translateX(-50%)' }}>
+              <button
+                onClick={() => photoInputRef.current?.click()}
+                disabled={uploadingPhoto}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '0.5rem',
+                  backgroundColor: uploadingPhoto ? '#94a3b8' : '#ef4444',
+                  color: 'white', border: 'none', borderRadius: '2rem',
+                  padding: '0.6rem 1.25rem', fontWeight: 700, fontSize: '0.8rem',
+                  cursor: uploadingPhoto ? 'not-allowed' : 'pointer',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.3)', whiteSpace: 'nowrap'
+                }}
+              >
+                <Camera size={16} />
+                {uploadingPhoto ? 'Enviando...' : 'Substituir Foto'}
+              </button>
+              <input
+                ref={photoInputRef}
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (file) await replacePhoto(file);
+                  e.target.value = '';
+                }}
+              />
+            </div>
+          )}
+
+          <div style={{ position: 'absolute', bottom: '1rem', right: '1rem', display: 'flex', gap: '0.5rem', background: 'rgba(255,255,255,0.9)', padding: '0.25rem', borderRadius: '2rem' }}>
             <button onClick={() => setZoom(z => Math.max(0.5, z - 0.25))} style={{ background: 'none', border: 'none', padding: '0.5rem', cursor: 'pointer' }}><ZoomOut size={20} /></button>
             <button onClick={() => setZoom(z => Math.min(3, z + 0.25))} style={{ background: 'none', border: 'none', padding: '0.5rem', cursor: 'pointer' }}><ZoomIn size={20} /></button>
           </div>
