@@ -26,9 +26,14 @@ export const CostCenterManagement = () => {
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim()) return;
-    await supabase.from('cost_centers').insert({ name: newName.trim().toUpperCase() });
-    setNewName('');
-    fetchCenters();
+    try {
+      const { error } = await supabase.from('cost_centers').insert({ name: newName.trim().toUpperCase() });
+      if (error) throw error;
+      setNewName('');
+      fetchCenters();
+    } catch (err: any) {
+      alert('Erro ao adicionar centro de custo: ' + err.message);
+    }
   };
 
   const handleUpdate = async (id: string) => {

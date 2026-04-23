@@ -26,9 +26,14 @@ export const ExpenseTypeManagement = () => {
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim()) return;
-    await supabase.from('expense_types').insert({ name: newName.trim().toUpperCase() });
-    setNewName('');
-    fetchTypes();
+    try {
+      const { error } = await supabase.from('expense_types').insert({ name: newName.trim().toUpperCase() });
+      if (error) throw error;
+      setNewName('');
+      fetchTypes();
+    } catch (err: any) {
+      alert('Erro ao adicionar categoria: ' + err.message);
+    }
   };
 
   const handleUpdate = async (id: string) => {

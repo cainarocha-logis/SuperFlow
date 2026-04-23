@@ -26,9 +26,14 @@ export const BranchManagement = () => {
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim()) return;
-    await supabase.from('branches').insert({ name: newName.trim().toUpperCase() });
-    setNewName('');
-    fetchBranches();
+    try {
+      const { error } = await supabase.from('branches').insert({ name: newName.trim().toUpperCase() });
+      if (error) throw error;
+      setNewName('');
+      fetchBranches();
+    } catch (err: any) {
+      alert('Erro ao adicionar filial: ' + err.message);
+    }
   };
 
   const handleUpdate = async (id: string) => {
