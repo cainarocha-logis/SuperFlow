@@ -8,7 +8,10 @@ import {
   Calendar,
   Bell,
   Search,
-  Settings
+  Settings,
+  Menu,
+  X,
+  LogOut
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
@@ -25,6 +28,7 @@ export const LancadorDashboard = () => {
   const { logoUrl } = useSettings();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const [expenses, setExpenses] = useState<any[]>([]);
   const [thumbnails, setThumbnails] = useState<Record<string, string>>({});
@@ -162,21 +166,15 @@ export const LancadorDashboard = () => {
   };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f1f5f9', paddingBottom: '100px' }}>
-      <header className="bg-gradient-primary" style={{ padding: '1.25rem 1.5rem', color: 'white', borderRadius: '0 0 1.5rem 1.5rem', position: 'sticky', top: 0, zIndex: 50 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: 'var(--primary-dark)', padding: '0', color: 'white' }}>
+      <div className="container-padding" style={{ maxWidth: '1000px', margin: '0 auto' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             {logoUrl ? (
-              <img src={logoUrl} alt="Logo" style={{ height: '32px', maxWidth: '100px', objectFit: 'contain' }} />
+              <img src={logoUrl} alt="Logo" style={{ height: '32px', maxWidth: '150px', objectFit: 'contain' }} />
             ) : (
-              <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem', fontWeight: 800 }}>
-                {user?.email?.[0].toUpperCase()}
-              </div>
+              <h1 style={{ fontSize: '1.5rem', fontWeight: 900, margin: 0 }}>SuperFlow</h1>
             )}
-            <div>
-              <p style={{ fontSize: '0.65rem', opacity: 0.8, textTransform: 'uppercase', fontWeight: 700, margin: 0 }}>SuperFlow</p>
-              <h1 style={{ fontSize: '1rem', fontWeight: 800, margin: 0 }}>{user?.email?.split('@')[0]}</h1>
-            </div>
           </div>
           <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
             <div style={{ position: 'relative' }}>
@@ -247,7 +245,7 @@ export const LancadorDashboard = () => {
           ))}
         </div>
 
-        <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', paddingBottom: '0.25rem', scrollbarWidth: 'none' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', paddingBottom: '0.5rem', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
           <select value={advFilters.branch_id} onChange={e => setAdvFilters(p => ({ ...p, branch_id: e.target.value }))} style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.1)', padding: '0.5rem 0.75rem', borderRadius: '0.625rem', fontSize: '0.7rem', fontWeight: 700, outline: 'none' }}>
             <option value="" style={{ color: '#000' }}>Filial: Todas</option>
             {branches.map(b => <option key={b.id} value={b.id} style={{ color: '#000' }}>{b.name}</option>)}
@@ -261,9 +259,8 @@ export const LancadorDashboard = () => {
             {expenseTypes.map(t => <option key={t.id} value={t.id} style={{ color: '#000' }}>{t.name}</option>)}
           </select>
         </div>
-      </header>
 
-      <main style={{ padding: '1.25rem' }}>
+        <div style={{ paddingBottom: '100px' }}>
         {loading ? (
           <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}><div className="spinner"></div></div>
         ) : filteredExpenses.length === 0 ? (
@@ -317,7 +314,7 @@ export const LancadorDashboard = () => {
             ))}
           </div>
         )}
-      </main>
+        </div>
 
       <div style={{ position: 'fixed', bottom: '2rem', left: '0', right: '0', display: 'flex', justifyContent: 'center', zIndex: 60 }}>
         <button onClick={() => fileInputRef.current?.click()} className="btn-primary" style={{ padding: '1rem 3rem', borderRadius: '3rem', boxShadow: '0 10px 30px rgba(36, 152, 207, 0.4)', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.75rem', letterSpacing: '0.5px' }}>
@@ -370,6 +367,7 @@ export const LancadorDashboard = () => {
       <style>{`.spinner { width: 30px; height: 30px; border: 3px solid var(--primary-light); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } }
       .animate-fade-in { animation: fadeIn 0.3s ease-out; } @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }`}
       </style>
+      </div>
     </div>
   );
 };

@@ -222,8 +222,8 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
         </div>
       )}
 
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-        <div style={{ flex: '1.2', backgroundColor: '#e2e8f0', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="modal-content-wrapper">
+        <div className="modal-image-area" style={{ flex: '1.2', backgroundColor: '#e2e8f0', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '300px' }}>
           {imageUrl
             ? <img src={imageUrl} alt="Comprovante" style={{ transform: `scale(${zoom})`, transition: 'transform 0.2s', maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} />
             : <p style={{ color: '#94a3b8' }}>Sem imagem</p>
@@ -234,7 +234,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
           </div>
         </div>
 
-        <div style={{ flex: '1', backgroundColor: 'var(--surface)', overflowY: 'auto', padding: '1.5rem', boxShadow: '-4px 0 10px rgba(0,0,0,0.05)', zIndex: 5 }}>
+        <div className="modal-form-area" style={{ flex: '1', backgroundColor: 'var(--surface)', overflowY: 'auto', padding: '1.5rem', boxShadow: '-4px 0 10px rgba(0,0,0,0.05)', zIndex: 5 }}>
 
           <div style={{ marginBottom: '1.5rem', backgroundColor: '#f8fafc', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid #e2e8f0' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '0.75rem' }}>

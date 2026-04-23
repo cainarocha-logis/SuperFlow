@@ -11,7 +11,9 @@ import {
   ChevronRight,
   X,
   Settings as SettingsIcon,
-  Upload
+  Upload,
+  Menu,
+  LogOut
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
@@ -27,6 +29,7 @@ type TabType = 'CONFERENCIA' | 'FILIAIS' | 'TIPOS' | 'CENTROS' | 'CONFIG';
 
 export const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState<TabType>('CONFERENCIA');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [expenses, setExpenses] = useState<(Tables<'expenses'> & { 
     users: { first_name: string, last_name: string, email: string } | null, 
     branches: { name: string } | null, 
@@ -130,8 +133,47 @@ export const AdminDashboard = () => {
   });
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f8fafc' }}>
-      <aside style={{ width: '280px', backgroundColor: 'var(--primary-dark)', padding: '2rem 1.5rem', color: 'white', position: 'sticky', top: 0, height: '100vh', overflowY: 'auto' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f8fafc', flexDirection: 'column' }}>
+      {/* Mobile Header */}
+      <header className="mobile-only" style={{ 
+        backgroundColor: 'var(--primary-dark)', 
+        padding: '1rem', 
+        color: 'white', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        position: 'sticky',
+        top: 0,
+        zIndex: 50
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}>
+            <Menu size={24} />
+          </button>
+          <span style={{ fontWeight: 800 }}>SuperFlow Admin</span>
+        </div>
+        {logoUrl && <img src={logoUrl} alt="Logo" style={{ height: '24px', maxWidth: '80px', objectFit: 'contain' }} />}
+      </header>
+
+      <div style={{ display: 'flex', flex: 1 }}>
+        {/* Sidebar */}
+        <aside className={`${isSidebarOpen ? 'show' : ''} sidebar-desktop`} style={{ 
+          width: '280px', 
+          backgroundColor: 'var(--primary-dark)', 
+          padding: '2rem 1.5rem', 
+          color: 'white', 
+          position: 'sticky', 
+          top: 0, 
+          height: '100vh', 
+          overflowY: 'auto',
+          transition: '0.3s ease',
+          zIndex: 100
+        }}>
+          {/* Mobile Close Button */}
+          <div className="mobile-only" style={{ justifyContent: 'flex-end', marginBottom: '1rem' }}>
+            <button onClick={() => setIsSidebarOpen(false)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}>
+              <X size={24} />
+            </button>
+          </div>
         <div style={{ marginBottom: '2.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           {logoUrl ? (
             <img src={logoUrl} alt="Logo" style={{ height: '32px', maxWidth: '120px', objectFit: 'contain' }} />
@@ -170,22 +212,23 @@ export const AdminDashboard = () => {
         </nav>
       </aside>
 
-      <main style={{ flex: 1, padding: '2rem 3rem' }}>
-        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-          <div>
-            <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#1e293b' }}>
-              {activeTab === 'CONFERENCIA' && 'Aguardando Conferência'}
-              {activeTab === 'CONFIG' && 'Configurações do Sistema'}
-              {activeTab === 'FILIAIS' && 'Gerenciar Filiais'}
-              {activeTab === 'TIPOS' && 'Tipos de Despesa'}
-              {activeTab === 'CENTROS' && 'Centros de Custo'}
-            </h2>
-          </div>
-          <div style={{ backgroundColor: 'white', borderRadius: '0.75rem', padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', border: '1px solid #e2e8f0' }}>
-            <UserIcon size={18} color="#64748b" />
-            <span style={{ fontWeight: 600, color: '#1e293b' }}>Admin</span>
-          </div>
-        </header>
+        <main style={{ flex: 1, padding: '0', overflowX: 'hidden' }}>
+          <div className="container-padding">
+            <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+              <div>
+                <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#1e293b' }}>
+                  {activeTab === 'CONFERENCIA' && 'Aguardando Conferência'}
+                  {activeTab === 'CONFIG' && 'Configurações do Sistema'}
+                  {activeTab === 'FILIAIS' && 'Gerenciar Filiais'}
+                  {activeTab === 'TIPOS' && 'Tipos de Despesa'}
+                  {activeTab === 'CENTROS' && 'Centros de Custo'}
+                </h2>
+              </div>
+              <div style={{ backgroundColor: 'white', borderRadius: '0.75rem', padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', border: '1px solid #e2e8f0' }}>
+                <UserIcon size={18} color="#64748b" />
+                <span style={{ fontWeight: 600, color: '#1e293b' }}>Admin</span>
+              </div>
+            </header>
 
         {activeTab === 'CONFIG' && (
           <div className="glass-panel" style={{ padding: '2rem', backgroundColor: 'white', maxWidth: '600px' }}>
@@ -304,7 +347,9 @@ export const AdminDashboard = () => {
           periods={periods}
           isAdminView={true}
         />
-      </main>
+          </div>
+        </main>
+      </div>
     </div>
   );
 };

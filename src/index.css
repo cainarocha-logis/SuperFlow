@@ -138,3 +138,85 @@ body {
 .animate-fade-in {
   animation: fadeIn 0.4s ease-out forwards;
 }
+
+/* Responsive Utilities */
+@media (max-width: 1024px) {
+  .sidebar-desktop {
+    display: block !important;
+    position: fixed !important;
+    left: -280px;
+    top: 0;
+    height: 100vh !important;
+    z-index: 200 !important;
+    transition: left 0.3s ease-in-out;
+  }
+  .sidebar-desktop.show {
+    left: 0;
+  }
+}
+
+.mobile-only {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .mobile-only {
+    display: flex;
+  }
+}
+
+.desktop-only {
+  display: flex;
+}
+
+@media (max-width: 1024px) {
+  .desktop-only {
+    display: none !important;
+  }
+}
+
+.responsive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+@media (max-width: 640px) {
+  .responsive-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .glass-panel, .glass-panel-dark {
+    padding: 1.5rem !important;
+  }
+}
+
+.container-padding {
+  padding: 2rem;
+}
+
+@media (max-width: 768px) {
+  .container-padding {
+    padding: 1rem;
+  }
+}
+
+.modal-content-wrapper {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .modal-content-wrapper {
+    flex-direction: column !important;
+    overflow-y: auto !important;
+  }
+  
+  .modal-image-area, .modal-form-area {
+    flex: none !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+}
+
