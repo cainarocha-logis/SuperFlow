@@ -14,7 +14,8 @@ import {
   LogOut,
   Camera,
   CheckCircle2,
-  Loader2
+  Loader2,
+  Trash2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
@@ -67,6 +68,25 @@ export const LancadorDashboard = () => {
 
     return () => { supabase.removeChannel(channel); };
   }, []);
+
+  const deleteDraft = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Não abrir o modal ao clicar em excluir
+    if (!window.confirm('Deseja excluir este rascunho?')) return;
+    
+    try {
+      // 1. Buscar anexo para apagar do storage
+      const { data: attachments } = await supabase.from('expense_attachments').select('storage_path').eq('expense_id', id);
+      if (attachments && attachments.length > 0) {
+        await supabase.storage.from('receipts').remove(attachments.map(a => a.storage_path));
+      }
+      
+      // 2. Apagar do banco (cascade deve cuidar dos anexos, mas apagamos manual pra garantir)
+      await supabase.from('expenses').delete().eq('id', id);
+      fetchExpenses();
+    } catch (err: any) {
+      alert('Erro ao excluir rascunho: ' + err.message);
+    }
+  };
 
   const fetchExpenses = async () => {
     if (!user) return;
@@ -384,9 +404,19 @@ export const LancadorDashboard = () => {
                     }}>{exp.status}</span>
                     <span style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 600 }}>{new Date(exp.created_at).toLocaleDateString('pt-BR')}</span>
                   </div>
-                  <p style={{ fontSize: '1.25rem', fontWeight: 900, color: '#1e293b', marginBottom: '0.5rem' }}>
-                    {formatCurrency(Number(exp.amount || 0))}
-                  </p>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.25rem' }}>
+                    <p style={{ fontSize: '1.25rem', fontWeight: 900, color: '#1e293b', margin: 0 }}>
+                      {formatCurrency(Number(exp.amount || 0))}
+                    </p>
+                    {exp.status === 'RASCUNHO' && (
+                      <button 
+                        onClick={(e) => deleteDraft(exp.id, e)}
+                        style={{ background: '#fee2e2', border: 'none', color: '#ef4444', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
+                  </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', opacity: 0.9 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>
                       <Tag size={12} /> {exp.expense_types?.name}
