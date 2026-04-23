@@ -348,6 +348,39 @@ export type Database = {
           },
         ]
       }
+      user_cost_centers: {
+        Row: {
+          cost_center_id: string
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          cost_center_id: string
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          cost_center_id?: string
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_cost_centers_cost_center_id_fkey"
+            columns: ["cost_center_id"]
+            isOneToOne: false
+            referencedRelation: "cost_centers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_cost_centers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       users: {
         Row: {
           created_at: string
@@ -503,7 +536,7 @@ export type Database = {
         | "APROVADO"
         | "REJEITADO"
       period_status: "ABERTO" | "FECHADO" | "EM_CONFERENCIA" | "CONCLUIDO"
-      user_role: "ADMIN" | "LANCADOR"
+      user_role: "ADMIN" | "LANCADOR" | "GERENTE"
     }
     CompositeTypes: {
       [_ in never]: never

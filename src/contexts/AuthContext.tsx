@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 
 interface UserProfile {
   id: string;
-  role: 'ADMIN' | 'CONFERENTE' | 'LANCADOR';
+  role: 'ADMIN' | 'LANCADOR' | 'GERENTE';
   first_name: string;
   last_name: string;
   email: string;

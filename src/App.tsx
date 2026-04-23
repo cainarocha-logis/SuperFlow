@@ -20,7 +20,7 @@ const ProtectedRoute = ({ children, requireAdmin = false }: { children: React.Re
   
   if (!user) return <Navigate to="/login" replace />;
 
-  if (requireAdmin && profile?.role !== 'ADMIN') {
+  if (requireAdmin && profile?.role !== 'ADMIN' && profile?.role !== 'GERENTE') {
     return <Navigate to="/" replace />;
   }
   
@@ -29,7 +29,7 @@ const ProtectedRoute = ({ children, requireAdmin = false }: { children: React.Re
 
 const DashboardRouter = () => {
   const { profile } = useAuth();
-  if (profile?.role === 'ADMIN') return <AdminDashboard />;
+  if (profile?.role === 'ADMIN' || profile?.role === 'GERENTE') return <AdminDashboard />;
   return <LancadorDashboard />;
 };
 

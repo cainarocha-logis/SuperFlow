@@ -49,8 +49,11 @@ export const AdminDashboard = () => {
   const [advFilters, setAdvFilters] = useState({
     branch_id: '',
     period_id: '',
-    expense_type_id: ''
+    expense_type_id: '',
+    user_id: ''
   });
+
+  const [usersList, setUsersList] = useState<Tables<'users'>[]>([]);
 
   const [branches, setBranches] = useState<Tables<'branches'>[]>([]);
   const [expenseTypes, setExpenseTypes] = useState<Tables<'expense_types'>[]>([]);
@@ -80,16 +83,32 @@ export const AdminDashboard = () => {
   };
 
   const fetchReferences = async () => {
-    const [br, et, cc, p] = await Promise.all([
+    const [br, et, cc, p, usr] = await Promise.all([
       supabase.from('branches').select('*').order('name'),
       supabase.from('expense_types').select('*').order('name'),
       supabase.from('cost_centers').select('*').order('name'),
-      supabase.from('competency_periods').select('*').order('created_at', { ascending: false })
+      supabase.from('competency_periods').select('*').order('created_at', { ascending: false }),
+      supabase.from('users').select('*').order('first_name')
     ]);
     setBranches(br.data || []);
     setExpenseTypes(et.data || []);
     setCostCenters(cc.data || []);
     setPeriods(p.data || []);
+    setUsersList(usr.data || []);
+  };
+
+  const handleDeleteExpense = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (profile?.role !== 'ADMIN') return;
+    if (!window.confirm('Tem certeza que deseja excluir esta despesa permanentemente? Essa ação não pode ser desfeita.')) return;
+    
+    try {
+      const { error } = await supabase.from('expenses').delete().eq('id', id);
+      if (error) throw error;
+      fetchExpenses();
+    } catch (err: any) {
+      alert('Erro ao excluir despesa: ' + err.message);
+    }
   };
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -125,6 +144,7 @@ export const AdminDashboard = () => {
     if (advFilters.branch_id && e.branch_id !== advFilters.branch_id) return false;
     if (advFilters.period_id && e.period_id !== advFilters.period_id) return false;
     if (advFilters.expense_type_id && e.expense_type_id !== advFilters.expense_type_id) return false;
+    if (advFilters.user_id && e.user_id !== advFilters.user_id) return false;
 
     return true;
   });
@@ -202,21 +222,25 @@ export const AdminDashboard = () => {
           <button onClick={() => setActiveTab('RELATORIOS')} style={navButtonStyle(activeTab === 'RELATORIOS')}>
             <FileSpreadsheet size={20} /> Relatórios
           </button>
-          <button onClick={() => setActiveTab('FILIAIS')} style={navButtonStyle(activeTab === 'FILIAIS')}>
-            <Building2 size={20} /> Filiais
-          </button>
-          <button onClick={() => setActiveTab('TIPOS')} style={navButtonStyle(activeTab === 'TIPOS')}>
-            <Tag size={20} /> Categorias
-          </button>
-          <button onClick={() => setActiveTab('CENTROS')} style={navButtonStyle(activeTab === 'CENTROS')}>
-            <FileText size={20} /> Centros de Custo
-          </button>
-          <button onClick={() => setActiveTab('USUARIOS')} style={navButtonStyle(activeTab === 'USUARIOS')}>
-            <UserIcon size={20} /> Usuários
-          </button>
-          <button onClick={() => setActiveTab('CONFIG')} style={navButtonStyle(activeTab === 'CONFIG')}>
-            <SettingsIcon size={20} /> Configurações
-          </button>
+          {profile?.role === 'ADMIN' && (
+            <>
+              <button onClick={() => setActiveTab('FILIAIS')} style={navButtonStyle(activeTab === 'FILIAIS')}>
+                <Building2 size={20} /> Filiais
+              </button>
+              <button onClick={() => setActiveTab('TIPOS')} style={navButtonStyle(activeTab === 'TIPOS')}>
+                <Tag size={20} /> Categorias
+              </button>
+              <button onClick={() => setActiveTab('CENTROS')} style={navButtonStyle(activeTab === 'CENTROS')}>
+                <FileText size={20} /> Centros de Custo
+              </button>
+              <button onClick={() => setActiveTab('USUARIOS')} style={navButtonStyle(activeTab === 'USUARIOS')}>
+                <UserIcon size={20} /> Usuários
+              </button>
+              <button onClick={() => setActiveTab('CONFIG')} style={navButtonStyle(activeTab === 'CONFIG')}>
+                <SettingsIcon size={20} /> Configurações
+              </button>
+            </>
+          )}
           <div style={{ margin: '1.5rem 0', height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.1)' }} />
           <button onClick={() => navigate('/lancador')} style={navButtonStyle(false)}>
             <ImageIcon size={20} /> Visão do Lançador
@@ -277,6 +301,10 @@ export const AdminDashboard = () => {
                   onChange={e => setSearchTerm(e.target.value)}
                 />
               </div>
+              <select value={advFilters.user_id} onChange={e => setAdvFilters(p => ({ ...p, user_id: e.target.value }))} style={{ padding: '0.6rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0', fontSize: '0.875rem' }}>
+                <option value="">Todos Usuários</option>
+                {usersList.map(u => <option key={u.id} value={u.id}>{u.first_name} {u.last_name}</option>)}
+              </select>
               <select value={advFilters.branch_id} onChange={e => setAdvFilters(p => ({ ...p, branch_id: e.target.value }))} style={{ padding: '0.6rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0', fontSize: '0.875rem' }}>
                 <option value="">Todas Filiais</option>
                 {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
@@ -289,8 +317,8 @@ export const AdminDashboard = () => {
                 <option value="">Todas Categorias</option>
                 {expenseTypes.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
               </select>
-              {(advFilters.branch_id || advFilters.period_id || advFilters.expense_type_id) && (
-                <button onClick={() => setAdvFilters({ branch_id: '', period_id: '', expense_type_id: '' })} style={{ border: 'none', background: '#fee2e2', color: '#b91c1c', padding: '0.6rem', borderRadius: '0.5rem', cursor: 'pointer' }}>
+              {(advFilters.branch_id || advFilters.period_id || advFilters.expense_type_id || advFilters.user_id) && (
+                <button onClick={() => setAdvFilters({ branch_id: '', period_id: '', expense_type_id: '', user_id: '' })} style={{ border: 'none', background: '#fee2e2', color: '#b91c1c', padding: '0.6rem', borderRadius: '0.5rem', cursor: 'pointer' }}>
                   <X size={18} />
                 </button>
               )}
@@ -336,10 +364,19 @@ export const AdminDashboard = () => {
                           </span>
                         </td>
                         <td style={{ padding: '1rem', fontWeight: 800, color: 'var(--primary-dark)' }}>{formatCurrency(Number(exp.amount))}</td>
-                        <td style={{ padding: '1rem', textAlign: 'right' }}>
-                          <button style={{ background: 'none', border: 'none', color: 'var(--primary-dark)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', marginLeft: 'auto', fontWeight: 700, fontSize: '0.8125rem' }}>
+                        <td style={{ padding: '1rem', textAlign: 'right', display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+                          <button style={{ background: 'none', border: 'none', color: 'var(--primary-dark)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 700, fontSize: '0.8125rem' }}>
                             CONFERIR <ChevronRight size={14} />
                           </button>
+                          {profile?.role === 'ADMIN' && (
+                            <button 
+                              onClick={(e) => handleDeleteExpense(exp.id, e)} 
+                              style={{ background: '#fee2e2', border: 'none', color: '#b91c1c', cursor: 'pointer', padding: '0.25rem 0.5rem', borderRadius: '0.25rem' }}
+                              title="Excluir Permanentemente"
+                            >
+                              <X size={14} />
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))
@@ -366,6 +403,7 @@ export const AdminDashboard = () => {
           costCenters={costCenters}
           periods={periods}
           isAdminView={true}
+          canApprove={profile?.role === 'ADMIN'}
         />
           </div>
         </main>

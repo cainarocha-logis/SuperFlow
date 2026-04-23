@@ -14,6 +14,7 @@ interface ExpenseModalProps {
   costCenters: Tables<'cost_centers'>[];
   periods: Tables<'competency_periods'>[];
   isAdminView?: boolean;
+  canApprove?: boolean;
   hasNext?: boolean;
   onNext?: () => void;
 }
@@ -28,6 +29,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
   costCenters,
   periods,
   isAdminView = false,
+  canApprove = false,
   hasNext = false,
   onNext
 }) => {
@@ -447,14 +449,20 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
 
           <div style={{ display: 'flex', gap: '1rem', paddingBottom: '2rem' }}>
             {isAdminView ? (
-              <>
-                <button onClick={handleReject} disabled={loading} style={{ flex: 1, padding: '1rem', borderRadius: 'var(--radius-md)', background: '#fee2e2', color: '#b91c1c', border: 'none', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                  <XCircle size={18} /> REJEITAR
+              canApprove ? (
+                <>
+                  <button onClick={handleReject} disabled={loading} style={{ flex: 1, padding: '1rem', borderRadius: 'var(--radius-md)', background: '#fee2e2', color: '#b91c1c', border: 'none', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                    <XCircle size={18} /> REJEITAR
+                  </button>
+                  <button onClick={handleApprove} disabled={loading} style={{ flex: 1, padding: '1rem', borderRadius: 'var(--radius-md)', background: '#dcfce7', color: '#15803d', border: 'none', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                    <CheckCircle size={18} /> APROVAR
+                  </button>
+                </>
+              ) : (
+                <button onClick={onClose} style={{ flex: 1, padding: '1rem', borderRadius: 'var(--radius-md)', background: 'var(--primary-dark)', color: 'white', border: 'none', fontWeight: 700, cursor: 'pointer' }}>
+                  FECHAR CONSULTA
                 </button>
-                <button onClick={handleApprove} disabled={loading} style={{ flex: 1, padding: '1rem', borderRadius: 'var(--radius-md)', background: '#dcfce7', color: '#15803d', border: 'none', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                  <CheckCircle size={18} /> APROVAR
-                </button>
-              </>
+              )
             ) : !isReadOnly ? (
               <>
                 <button onClick={() => saveExpenseData('RASCUNHO')} disabled={loading} style={{ flex: 1, padding: '1rem', borderRadius: 'var(--radius-md)', background: '#f1f5f9', color: '#475569', border: 'none', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>

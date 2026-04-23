@@ -108,16 +108,32 @@ export const LancadorDashboard = () => {
   };
 
   const fetchReferences = async () => {
-    const [br, et, p, cc] = await Promise.all([
+    if (!user) return;
+    const [br, et, p, cc, userBr, userCc] = await Promise.all([
       supabase.from('branches').select('*').eq('status', 'ATIVO').order('name'),
       supabase.from('expense_types').select('*').eq('status', 'ATIVO').order('name'),
       supabase.from('competency_periods').select('*').order('created_at', { ascending: false }),
-      supabase.from('cost_centers').select('*').eq('status', 'ATIVO').order('name')
+      supabase.from('cost_centers').select('*').eq('status', 'ATIVO').order('name'),
+      supabase.from('user_branches').select('branch_id').eq('user_id', user.id),
+      supabase.from('user_cost_centers').select('cost_center_id').eq('user_id', user.id)
     ]);
-    setBranches(br.data || []);
+
+    let branchesData = br.data || [];
+    if (userBr.data && userBr.data.length > 0) {
+      const allowedIds = userBr.data.map(ub => ub.branch_id);
+      branchesData = branchesData.filter(b => allowedIds.includes(b.id));
+    }
+
+    let ccData = cc.data || [];
+    if (userCc.data && userCc.data.length > 0) {
+      const allowedIds = userCc.data.map(uc => uc.cost_center_id);
+      ccData = ccData.filter(c => allowedIds.includes(c.id));
+    }
+
+    setBranches(branchesData);
     setExpenseTypes(et.data || []);
     setPeriods(p.data || []);
-    setCostCenters(cc.data || []);
+    setCostCenters(ccData);
   };
 
   const fetchNotifications = async () => {
