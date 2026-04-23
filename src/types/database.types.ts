@@ -453,6 +453,33 @@ export type Database = {
         }
         Relationships: []
       }
+      authorized_emails: {
+        Row: {
+          email: string
+          first_name: string | null
+          last_name: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          created_at: string
+          registered_at: string | null
+        }
+        Insert: {
+          email: string
+          first_name?: string | null
+          last_name?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          created_at?: string
+          registered_at?: string | null
+        }
+        Update: {
+          email?: string
+          first_name?: string | null
+          last_name?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          created_at?: string
+          registered_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

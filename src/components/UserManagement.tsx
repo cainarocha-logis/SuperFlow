@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { UserPlus, Mail, Trash2, Shield, CheckCircle } from 'lucide-react';
+import type { Tables } from '../types/database.types';
 
 export const UserManagement = () => {
-  const [emails, setEmails] = useState<any[]>([]);
+  const [emails, setEmails] = useState<Tables<'authorized_emails'>[]>([]);
   const [loading, setLoading] = useState(true);
-  const [newEmail, setNewEmail] = useState({ email: '', first_name: '', last_name: '', role: 'LANCADOR' });
+  const [newEmail, setNewEmail] = useState({ email: '', first_name: '', last_name: '', role: 'LANCADOR' as Tables<'authorized_emails'>['role'] });
   const [message, setMessage] = useState({ text: '', type: '' });
 
   useEffect(() => {
@@ -91,7 +92,7 @@ export const UserManagement = () => {
             <select 
               className="input-field" 
               value={newEmail.role}
-              onChange={e => setNewEmail({...newEmail, role: e.target.value})}
+              onChange={e => setNewEmail({...newEmail, role: e.target.value as Tables<'authorized_emails'>['role']})}
             >
               <option value="LANCADOR">Lançador</option>
               <option value="ADMIN">Administrador</option>
