@@ -169,6 +169,52 @@ export const LancadorDashboard = () => {
     padding: '0'
   };
 
+  const compressImage = (file: File): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 1280;
+          const MAX_HEIGHT = 1280;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          
+          canvas.toBlob(
+            (blob) => {
+              if (blob) resolve(blob);
+              else reject(new Error('Canvas to Blob failed'));
+            },
+            'image/jpeg',
+            0.7
+          );
+        };
+        img.onerror = (err) => reject(err);
+      };
+      reader.onerror = (err) => reject(err);
+    });
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -178,14 +224,21 @@ export const LancadorDashboard = () => {
     try {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        const fileName = `${user?.id}/${Date.now()}_${i}.${file.name.split('.').pop()}`;
-        const { error: upErr } = await supabase.storage.from('receipts').upload(fileName, file);
+        
+        // Comprimir a imagem antes do upload
+        const compressedBlob = await compressImage(file);
+        
+        const fileName = `${user?.id}/${Date.now()}_${i}.jpg`; // Usamos .jpg após compressão
+        const { error: upErr } = await supabase.storage.from('receipts').upload(fileName, compressedBlob, {
+          contentType: 'image/jpeg'
+        });
+        
         if (upErr) throw upErr;
 
         const { data: exp, error: insErr } = await supabase.from('expenses').insert({ user_id: user!.id, status: 'RASCUNHO' }).select().single();
         if (insErr) throw insErr;
 
-        await supabase.from('expense_attachments').insert({ expense_id: exp.id, storage_path: fileName, file_type: file.type });
+        await supabase.from('expense_attachments').insert({ expense_id: exp.id, storage_path: fileName, file_type: 'image/jpeg' });
         
         setUploadProgress(prev => ({ ...prev, current: i + 1 }));
       }
