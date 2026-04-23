@@ -45,9 +45,15 @@ export const BranchManagement = () => {
 
   const handleUpdate = async (id: string) => {
     if (!editName.trim()) return;
-    await supabase.from('branches').update({ name: editName.trim().toUpperCase() }).eq('id', id);
-    setEditingId(null);
-    fetchBranches();
+    setErrorMsg(null);
+    try {
+      const { error } = await supabase.from('branches').update({ name: editName.trim().toUpperCase() }).eq('id', id);
+      if (error) throw error;
+      setEditingId(null);
+      fetchBranches();
+    } catch (err: any) {
+      setErrorMsg('Erro ao atualizar filial: ' + (err.message || JSON.stringify(err)));
+    }
   };
 
   const handleDelete = async (id: string) => {

@@ -45,9 +45,15 @@ export const CostCenterManagement = () => {
 
   const handleUpdate = async (id: string) => {
     if (!editName.trim()) return;
-    await supabase.from('cost_centers').update({ name: editName.trim().toUpperCase() }).eq('id', id);
-    setEditingId(null);
-    fetchCenters();
+    setErrorMsg(null);
+    try {
+      const { error } = await supabase.from('cost_centers').update({ name: editName.trim().toUpperCase() }).eq('id', id);
+      if (error) throw error;
+      setEditingId(null);
+      fetchCenters();
+    } catch (err: any) {
+      setErrorMsg('Erro ao atualizar centro de custo: ' + (err.message || JSON.stringify(err)));
+    }
   };
 
   const handleDelete = async (id: string) => {

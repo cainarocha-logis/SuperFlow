@@ -45,9 +45,15 @@ export const ExpenseTypeManagement = () => {
 
   const handleUpdate = async (id: string) => {
     if (!editName.trim()) return;
-    await supabase.from('expense_types').update({ name: editName.trim().toUpperCase() }).eq('id', id);
-    setEditingId(null);
-    fetchTypes();
+    setErrorMsg(null);
+    try {
+      const { error } = await supabase.from('expense_types').update({ name: editName.trim().toUpperCase() }).eq('id', id);
+      if (error) throw error;
+      setEditingId(null);
+      fetchTypes();
+    } catch (err: any) {
+      setErrorMsg('Erro ao atualizar categoria: ' + (err.message || JSON.stringify(err)));
+    }
   };
 
   const handleDelete = async (id: string) => {
