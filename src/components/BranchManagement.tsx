@@ -13,6 +13,9 @@ export const BranchManagement = () => {
     fetchBranches();
   }, []);
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
   const fetchBranches = async () => {
     setLoading(true);
     const { data } = await supabase
@@ -26,13 +29,17 @@ export const BranchManagement = () => {
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim()) return;
+    setIsSubmitting(true);
+    setErrorMsg(null);
     try {
-      const { error } = await supabase.from('branches').insert({ name: newName.trim().toUpperCase() });
+      const { error } = await supabase.from('branches').insert({ name: newName.trim().toUpperCase(), status: 'ATIVO' });
       if (error) throw error;
       setNewName('');
       fetchBranches();
     } catch (err: any) {
-      alert('Erro ao adicionar filial: ' + err.message);
+      setErrorMsg('Erro detalhado: ' + (err.message || JSON.stringify(err)));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -55,18 +62,25 @@ export const BranchManagement = () => {
 
   return (
     <div className="glass-panel" style={{ padding: '2rem', backgroundColor: 'white' }}>
-      <form onSubmit={handleAdd} style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
+      <form onSubmit={handleAdd} style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
         <input 
           type="text" 
           className="input-field" 
           placeholder="Nome da Filial (Ex: Matriz, Filial 01...)"
           value={newName}
           onChange={e => setNewName(e.target.value)}
+          disabled={isSubmitting}
         />
-        <button type="submit" className="btn-primary" style={{ whiteSpace: 'nowrap', padding: '0 2rem' }}>
-          <Plus size={18} /> ADICIONAR
+        <button type="submit" className="btn-primary" style={{ whiteSpace: 'nowrap', padding: '0 2rem' }} disabled={isSubmitting}>
+          {isSubmitting ? 'SALVANDO...' : <><Plus size={18} /> ADICIONAR</>}
         </button>
       </form>
+
+      {errorMsg && (
+        <div style={{ padding: '1rem', marginBottom: '1.5rem', backgroundColor: '#fee2e2', color: '#b91c1c', borderRadius: '0.5rem', fontWeight: 600 }}>
+          {errorMsg}
+        </div>
+      )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         {loading ? <p>Carregando...</p> : branches.map(branch => (
