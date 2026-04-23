@@ -50,19 +50,22 @@ export const ReportsManagement = () => {
 
     const exportData = expenses.map(exp => ({
       'ID': exp.id,
-      'Data': new Date(exp.receipt_date).toLocaleDateString('pt-BR'),
+      'Data do Recibo': new Date(exp.receipt_date).toLocaleDateString('pt-BR'),
+      'Período Competência': exp.competency_periods?.name || '',
       'Colaborador': `${exp.users?.first_name} ${exp.users?.last_name}`,
-      'Email': exp.users?.email,
+      'E-mail': exp.users?.email,
       'Filial': exp.branches?.name,
-      'Categoria': exp.expense_types?.name,
-      'Centro de Custo': exp.cost_centers?.name,
-      'Periodo': exp.competency_periods?.name,
-      'Valor': exp.amount,
+      'Categoria/Tipo': exp.expense_types?.name,
+      'Centro de Custo': exp.cost_centers?.name || '',
+      'Placa do Veículo': exp.vehicle_plate || 'N/A',
+      'Descrição/Motivo': exp.description || '',
+      'Valor (R$)': exp.amount,
       'Status': exp.status,
-      'Obs': exp.observations || ''
+      'Observações Admin': exp.observations || '',
+      'Data de Cadastro': new Date(exp.created_at).toLocaleDateString('pt-BR')
     }));
 
-    exportToCSV(exportData, `Relatorio_SuperFlow_${filters.status}_${new Date().toISOString().split('T')[0]}`);
+    exportToCSV(exportData, `Relatorio_Completo_SuperFlow_${filters.status}_${new Date().toISOString().split('T')[0]}`);
   };
 
   return (
