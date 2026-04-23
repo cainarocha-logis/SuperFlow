@@ -140,7 +140,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
     if (!expense) return;
     setLoading(true);
     try {
-      const { error: rpcError } = await supabase.rpc('reject_expense', { p_expense_id: expense.id, p_reason: reason });
+      const { error: rpcError } = await supabase.rpc('reject_expense', { p_expense_id: expense.id, p_rejection_reason: reason });
       if (rpcError) throw rpcError;
       onSaved();
       onClose();

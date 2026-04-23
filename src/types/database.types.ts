@@ -462,7 +462,7 @@ export type Database = {
       get_user_branches: { Args: never; Returns: string[] }
       is_admin: { Args: never; Returns: boolean }
       reject_expense: {
-        Args: { p_expense_id: string; p_reason: string }
+        Args: { p_expense_id: string; p_rejection_reason: string }
         Returns: undefined
       }
       submit_expense: { Args: { p_expense_id: string }; Returns: undefined }
