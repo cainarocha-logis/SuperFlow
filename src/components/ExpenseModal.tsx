@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { X, ZoomIn, ZoomOut, Save, Send, AlertCircle, CheckCircle, XCircle, History, Eye, Camera } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import type { Tables } from '../types/database.types';
-import { formatCurrency } from '../lib/utils';
+import { formatCurrency, parseBrazilianNumber } from '../lib/utils';
 
 interface ExpenseModalProps {
   isOpen: boolean;
@@ -58,7 +58,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
   useEffect(() => {
     if (expense && isOpen) {
       setFormData({
-        amount: expense.amount ? String(expense.amount) : '',
+        amount: expense.amount ? String(expense.amount).replace('.', ',') : '',
         receipt_date: expense.receipt_date || new Date().toISOString().split('T')[0],
         branch_id: expense.branch_id || (branches?.length === 1 ? branches[0].id : ''),
         expense_type_id: expense.expense_type_id || '',
@@ -68,7 +68,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
         license_plate: expense.license_plate || '',
         customer_name: expense.customer_name || '',
         customer_chargeback: expense.customer_chargeback || false,
-        reimbursement_amount: expense.reimbursement_amount ? String(expense.reimbursement_amount) : ''
+        reimbursement_amount: expense.reimbursement_amount ? String(expense.reimbursement_amount).replace('.', ',') : ''
       });
       fetchImage(expense.id);
       fetchLogs(expense.id);
@@ -204,7 +204,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
       const { error: updateError } = await supabase
         .from('expenses')
         .update({
-          amount: formData.amount ? parseFloat(formData.amount) : null,
+          amount: parseBrazilianNumber(formData.amount),
           receipt_date: formData.receipt_date || null,
           branch_id: formData.branch_id || null,
           expense_type_id: formData.expense_type_id || null,
@@ -214,7 +214,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
           license_plate: formData.license_plate || null,
           customer_name: formData.customer_name || null,
           customer_chargeback: formData.customer_chargeback,
-          reimbursement_amount: formData.reimbursement_amount ? parseFloat(formData.reimbursement_amount) : null
+          reimbursement_amount: parseBrazilianNumber(formData.reimbursement_amount)
         })
         .eq('id', expense.id);
 
@@ -340,7 +340,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
             <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
               <div style={{ flex: 1 }}>
                 <label className="input-label">Valor Principal (R$){!isReadOnly && ' *'}</label>
-                <input type="number" step="0.01" name="amount" value={formData.amount} onChange={handleChange} className="input-field" disabled={isReadOnly} />
+                <input type="text" name="amount" value={formData.amount} onChange={handleChange} className="input-field" disabled={isReadOnly} placeholder="0,00" />
               </div>
               <div style={{ flex: 1 }}>
                 <label className="input-label">Data da Nota{!isReadOnly && ' *'}</label>
@@ -394,7 +394,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
                   </div>
                   <div style={{ flex: 1 }}>
                     <label className="input-label">Valor Repasse *</label>
-                    <input type="number" step="0.01" name="reimbursement_amount" value={formData.reimbursement_amount} onChange={handleChange} className="input-field" disabled={isReadOnly} />
+                    <input type="text" name="reimbursement_amount" value={formData.reimbursement_amount} onChange={handleChange} className="input-field" disabled={isReadOnly} placeholder="0,00" />
                   </div>
                 </div>
               )}
