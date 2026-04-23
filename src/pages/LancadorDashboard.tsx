@@ -31,7 +31,6 @@ export const LancadorDashboard = () => {
   const { logoUrl } = useSettings();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const cameraInputRef = useRef<HTMLInputElement>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({ active: false, current: 0, total: 0 });
 
@@ -368,17 +367,13 @@ export const LancadorDashboard = () => {
         )}
 
         <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <button onClick={() => cameraInputRef.current?.click()} className="btn-primary" style={{ width: '60px', height: '60px', borderRadius: '50%', boxShadow: '0 10px 30px rgba(36, 152, 207, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Camera size={28} strokeWidth={2.5} />
-          </button>
-          <button onClick={() => fileInputRef.current?.click()} className="btn-primary" style={{ padding: '0 2rem', height: '60px', borderRadius: '3rem', boxShadow: '0 10px 30px rgba(36, 152, 207, 0.4)', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.75rem', letterSpacing: '0.5px' }}>
+          <button onClick={() => fileInputRef.current?.click()} className="btn-primary" style={{ padding: '0 3rem', height: '60px', borderRadius: '3rem', boxShadow: '0 10px 30px rgba(36, 152, 207, 0.4)', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.75rem', letterSpacing: '0.5px' }}>
             <Plus size={24} strokeWidth={3} /> ADICIONAR NOTAS
           </button>
         </div>
       </div>
 
       <input type="file" multiple accept="image/*" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileUpload} />
-      <input type="file" accept="image/*" capture="environment" ref={cameraInputRef} style={{ display: 'none' }} onChange={handleFileUpload} />
 
 
       {loading && (

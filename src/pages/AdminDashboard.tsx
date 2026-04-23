@@ -13,7 +13,9 @@ import {
   Settings as SettingsIcon,
   Upload,
   Menu,
-  LogOut
+  LogOut,
+  Download,
+  FileSpreadsheet
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
@@ -24,9 +26,10 @@ import { ExpenseTypeManagement } from '../components/ExpenseTypeManagement';
 import { CostCenterManagement } from '../components/CostCenterManagement';
 import { ExpenseModal } from '../components/ExpenseModal';
 import { UserManagement } from '../components/UserManagement';
-import { formatCurrency } from '../lib/utils';
+import { ReportsManagement } from '../components/ReportsManagement';
+import { formatCurrency, exportToCSV } from '../lib/utils';
 
-type TabType = 'CONFERENCIA' | 'FILIAIS' | 'TIPOS' | 'CENTROS' | 'USUARIOS' | 'CONFIG';
+type TabType = 'CONFERENCIA' | 'RELATORIOS' | 'FILIAIS' | 'TIPOS' | 'CENTROS' | 'USUARIOS' | 'CONFIG';
 
 export const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState<TabType>('CONFERENCIA');
@@ -194,6 +197,12 @@ export const AdminDashboard = () => {
               </span>
             )}
           </button>
+          <button onClick={() => setActiveTab('CONFERENCIA')} style={navButtonStyle(activeTab === 'CONFERENCIA')}>
+            <LayoutDashboard size={20} /> Conferência
+          </button>
+          <button onClick={() => setActiveTab('RELATORIOS')} style={navButtonStyle(activeTab === 'RELATORIOS')}>
+            <FileSpreadsheet size={20} /> Relatórios
+          </button>
           <button onClick={() => setActiveTab('FILIAIS')} style={navButtonStyle(activeTab === 'FILIAIS')}>
             <Building2 size={20} /> Filiais
           </button>
@@ -221,7 +230,8 @@ export const AdminDashboard = () => {
             <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
               <div>
                 <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#1e293b' }}>
-                  {activeTab === 'CONFERENCIA' && 'Aguardando Conferência'}
+                  {activeTab === 'CONFERENCIA' && 'Conferência de Notas'}
+                  {activeTab === 'RELATORIOS' && 'Relatórios e Exportação'}
                   {activeTab === 'CONFIG' && 'Configurações do Sistema'}
                   {activeTab === 'FILIAIS' && 'Gerenciar Filiais'}
                   {activeTab === 'TIPOS' && 'Tipos de Despesa'}
@@ -341,6 +351,7 @@ export const AdminDashboard = () => {
         {activeTab === 'TIPOS' && <ExpenseTypeManagement />}
         {activeTab === 'CENTROS' && <CostCenterManagement />}
         {activeTab === 'USUARIOS' && <UserManagement />}
+        {activeTab === 'RELATORIOS' && <ReportsManagement />}
 
         <ExpenseModal
           isOpen={!!selectedExpense}
