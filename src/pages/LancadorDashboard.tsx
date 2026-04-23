@@ -109,10 +109,10 @@ export const LancadorDashboard = () => {
 
   const fetchReferences = async () => {
     const [br, et, p, cc] = await Promise.all([
-      supabase.from('branches').select('*').eq('status', 'ATIVO'),
-      supabase.from('expense_types').select('*').eq('status', 'ATIVO'),
-      supabase.from('competency_periods').select('*'),
-      supabase.from('cost_centers').select('*').eq('status', 'ATIVO')
+      supabase.from('branches').select('*').eq('status', 'ATIVO').order('name'),
+      supabase.from('expense_types').select('*').eq('status', 'ATIVO').order('name'),
+      supabase.from('competency_periods').select('*').order('created_at', { ascending: false }),
+      supabase.from('cost_centers').select('*').eq('status', 'ATIVO').order('name')
     ]);
     setBranches(br.data || []);
     setExpenseTypes(et.data || []);

@@ -79,10 +79,10 @@ export const AdminDashboard = () => {
 
   const fetchReferences = async () => {
     const [br, et, cc, p] = await Promise.all([
-      supabase.from('branches').select('*'),
-      supabase.from('expense_types').select('*'),
-      supabase.from('cost_centers').select('*'),
-      supabase.from('competency_periods').select('*')
+      supabase.from('branches').select('*').order('name'),
+      supabase.from('expense_types').select('*').order('name'),
+      supabase.from('cost_centers').select('*').order('name'),
+      supabase.from('competency_periods').select('*').order('created_at', { ascending: false })
     ]);
     setBranches(br.data || []);
     setExpenseTypes(et.data || []);
