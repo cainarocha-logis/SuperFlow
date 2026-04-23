@@ -61,6 +61,15 @@ body {
   box-shadow: var(--shadow-lg);
 }
 
+.glass-panel-dark {
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: var(--shadow-lg);
+  color: white;
+}
+
 .btn {
   display: inline-flex;
   align-items: center;

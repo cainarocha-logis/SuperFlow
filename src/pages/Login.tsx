@@ -47,20 +47,20 @@ export const Login = () => {
 
   return (
     <div className="bg-gradient-primary" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-      <div className="glass-panel animate-fade-in" style={{ width: '100%', maxWidth: '420px', padding: '2.5rem', borderRadius: 'var(--radius-lg)' }}>
+      <div className="glass-panel-dark animate-fade-in" style={{ width: '100%', maxWidth: '420px', padding: '2.5rem', borderRadius: 'var(--radius-lg)' }}>
         
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           {logoUrl ? (
             <img src={logoUrl} alt="Logo" style={{ height: '64px', maxWidth: '180px', objectFit: 'contain', marginBottom: '1.5rem', marginInline: 'auto' }} />
           ) : (
-            <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '64px', height: '64px', borderRadius: '50%', background: 'linear-gradient(135deg, rgba(37, 45, 74, 0.1) 0%, rgba(36, 152, 207, 0.1) 100%)', marginBottom: '1rem' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(255, 255, 255, 0.1)', marginBottom: '1rem' }}>
               <Truck size={32} color="var(--primary-light)" />
             </div>
           )}
-          <h1 style={{ fontSize: '1.75rem', fontWeight: '700', color: 'var(--primary-dark)', marginBottom: '0.5rem' }}>
-            Super<span className="text-gradient">Flow</span>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: '700', color: 'white', marginBottom: '0.5rem' }}>
+            Super<span className="text-gradient" style={{ background: 'linear-gradient(135deg, #fff 0%, var(--primary-light) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Flow</span>
           </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>Controle de Prestação de Contas</p>
+          <p style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.875rem' }}>Controle de Prestação de Contas</p>
         </div>
 
         {error && (
@@ -71,16 +71,16 @@ export const Login = () => {
 
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <div>
-            <label className="input-label" htmlFor="email">E-mail</label>
+            <label className="input-label" htmlFor="email" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>E-mail</label>
             <div style={{ position: 'relative' }}>
-              <div style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>
+              <div style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255, 255, 255, 0.4)' }}>
                 <Mail size={18} />
               </div>
               <input 
                 id="email"
                 type="email" 
                 className="input-field" 
-                style={{ paddingLeft: '2.75rem' }}
+                style={{ paddingLeft: '2.75rem', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', color: 'white' }}
                 placeholder="seu.email@empresa.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -90,16 +90,16 @@ export const Login = () => {
           </div>
 
           <div>
-            <label className="input-label" htmlFor="password">Senha</label>
+            <label className="input-label" htmlFor="password" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Senha</label>
             <div style={{ position: 'relative' }}>
-              <div style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>
+              <div style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255, 255, 255, 0.4)' }}>
                 <Lock size={18} />
               </div>
               <input 
                 id="password"
                 type="password" 
                 className="input-field" 
-                style={{ paddingLeft: '2.75rem' }}
+                style={{ paddingLeft: '2.75rem', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', color: 'white' }}
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
