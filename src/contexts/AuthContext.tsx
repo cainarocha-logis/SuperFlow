@@ -52,10 +52,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .from('users')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
       
       if (error) throw error;
-      setProfile(data);
+      
+      if (data) {
+        setProfile(data);
+      } else {
+        // Se não existir perfil, tenta criar um básico com os dados do Auth
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const newProfile = {
+            id: user.id,
+            email: user.email!,
+            first_name: user.user_metadata?.first_name || 'Usuário',
+            last_name: user.user_metadata?.last_name || '',
+            role: user.user_metadata?.role || 'LANCADOR'
+          };
+          
+          await supabase.from('users').upsert(newProfile);
+          setProfile(newProfile as any);
+        }
+      }
     } catch (err) {
       console.error('Erro ao buscar perfil:', err);
       setProfile(null);
