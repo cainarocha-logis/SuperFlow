@@ -14,6 +14,8 @@ interface ExpenseModalProps {
   costCenters: Tables<'cost_centers'>[];
   periods: Tables<'competency_periods'>[];
   isAdminView?: boolean;
+  hasNext?: boolean;
+  onNext?: () => void;
 }
 
 export const ExpenseModal: React.FC<ExpenseModalProps> = ({
@@ -25,7 +27,9 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
   expenseTypes,
   costCenters,
   periods,
-  isAdminView = false
+  isAdminView = false,
+  hasNext = false,
+  onNext
 }) => {
   const [formData, setFormData] = useState({
     amount: '',
@@ -200,7 +204,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
     }
   };
 
-  const saveExpenseData = async (targetStatus: 'RASCUNHO' | 'ENVIADO') => {
+  const saveExpenseData = async (targetStatus: 'RASCUNHO' | 'ENVIADO', goToNext = false) => {
     if (isReadOnly) return;
     setLoading(true);
     setError(null);
@@ -232,7 +236,11 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
       }
 
       onSaved();
-      onClose();
+      if (goToNext && onNext) {
+        onNext();
+      } else {
+        onClose();
+      }
     } catch (err: any) {
       setError(err.message || 'Erro ao salvar');
     } finally {
@@ -452,9 +460,16 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
                 <button onClick={() => saveExpenseData('RASCUNHO')} disabled={loading} style={{ flex: 1, padding: '1rem', borderRadius: 'var(--radius-md)', background: '#f1f5f9', color: '#475569', border: 'none', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
                   <Save size={18} /> Salvar Rascunho
                 </button>
-                <button onClick={() => saveExpenseData('ENVIADO')} disabled={loading} className="btn-primary" style={{ flex: 1, padding: '1rem', borderRadius: 'var(--radius-md)', border: 'none', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                  <Send size={18} /> Enviar p/ Conferência
-                </button>
+                <div style={{ flex: 2, display: 'flex', gap: '0.5rem' }}>
+                  <button onClick={() => saveExpenseData('ENVIADO')} disabled={loading} className="btn-primary" style={{ flex: 1, padding: '1rem', borderRadius: 'var(--radius-md)', border: 'none', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                    <Send size={18} /> {hasNext ? 'Enviar p/ Conferência' : 'Enviar p/ Conferência'}
+                  </button>
+                  {hasNext && (
+                    <button onClick={() => saveExpenseData('ENVIADO', true)} disabled={loading} className="btn-primary" style={{ flex: 1, padding: '1rem', borderRadius: 'var(--radius-md)', border: 'none', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', backgroundColor: '#10b981' }}>
+                      <Send size={18} /> Enviar e Próximo
+                    </button>
+                  )}
+                </div>
               </>
             ) : (
               <button onClick={onClose} style={{ flex: 1, padding: '1rem', borderRadius: 'var(--radius-md)', background: 'var(--primary-dark)', color: 'white', border: 'none', fontWeight: 700, cursor: 'pointer' }}>

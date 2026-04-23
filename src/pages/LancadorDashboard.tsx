@@ -277,6 +277,10 @@ export const LancadorDashboard = () => {
     }
   };
 
+  const draftExpenses = filteredExpenses.filter(e => e.status === 'RASCUNHO');
+  const currentDraftIndex = selectedExpense ? draftExpenses.findIndex(e => e.id === selectedExpense.id) : -1;
+  const nextDraft = currentDraftIndex !== -1 && currentDraftIndex + 1 < draftExpenses.length ? draftExpenses[currentDraftIndex + 1] : null;
+
   return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--primary-dark)', padding: '0', color: 'white' }}>
       <div className="container-padding" style={{ maxWidth: '1000px', margin: '0 auto' }}>
@@ -484,6 +488,12 @@ export const LancadorDashboard = () => {
         expenseTypes={expenseTypes}
         costCenters={costCenters}
         periods={periods}
+        hasNext={!!nextDraft}
+        onNext={() => {
+          if (nextDraft) {
+            setSelectedExpense(nextDraft);
+          }
+        }}
       />
       <style>{`.spinner { width: 30px; height: 30px; border: 3px solid var(--primary-light); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } }
       .animate-fade-in { animation: fadeIn 0.3s ease-out; } @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }`}
