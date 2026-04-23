@@ -15,7 +15,8 @@ import {
   Menu,
   LogOut,
   Download,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Database
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
@@ -28,9 +29,10 @@ import { CostCenterManagement } from '../components/CostCenterManagement';
 import { ExpenseModal } from '../components/ExpenseModal';
 import { UserManagement } from '../components/UserManagement';
 import { ReportsManagement } from '../components/ReportsManagement';
+import { RecordsManagement } from '../components/RecordsManagement';
 import { formatCurrency, exportToCSV } from '../lib/utils';
 
-type TabType = 'CONFERENCIA' | 'RELATORIOS' | 'FILIAIS' | 'TIPOS' | 'CENTROS' | 'USUARIOS' | 'CONFIG';
+type TabType = 'CONFERENCIA' | 'RELATORIOS' | 'REGISTROS' | 'FILIAIS' | 'TIPOS' | 'CENTROS' | 'USUARIOS' | 'CONFIG';
 
 export const AdminDashboard = () => {
   const { user, profile, signOut } = useAuth();
@@ -224,6 +226,9 @@ export const AdminDashboard = () => {
           </button>
           {profile?.role === 'ADMIN' && (
             <>
+              <button onClick={() => setActiveTab('REGISTROS')} style={navButtonStyle(activeTab === 'REGISTROS')}>
+                <Database size={20} /> Registros
+              </button>
               <button onClick={() => setActiveTab('FILIAIS')} style={navButtonStyle(activeTab === 'FILIAIS')}>
                 <Building2 size={20} /> Filiais
               </button>
@@ -255,6 +260,7 @@ export const AdminDashboard = () => {
                 <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#1e293b' }}>
                   {activeTab === 'CONFERENCIA' && 'Conferência de Notas'}
                   {activeTab === 'RELATORIOS' && 'Relatórios e Exportação'}
+                  {activeTab === 'REGISTROS' && 'Todos os Registros'}
                   {activeTab === 'CONFIG' && 'Configurações do Sistema'}
                   {activeTab === 'FILIAIS' && 'Gerenciar Filiais'}
                   {activeTab === 'TIPOS' && 'Tipos de Despesa'}
@@ -392,6 +398,7 @@ export const AdminDashboard = () => {
         {activeTab === 'CENTROS' && <CostCenterManagement />}
         {activeTab === 'USUARIOS' && <UserManagement />}
         {activeTab === 'RELATORIOS' && <ReportsManagement />}
+        {activeTab === 'REGISTROS' && <RecordsManagement />}
 
         <ExpenseModal
           isOpen={!!selectedExpense}
