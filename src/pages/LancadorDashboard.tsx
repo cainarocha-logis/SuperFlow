@@ -287,6 +287,10 @@ export const LancadorDashboard = () => {
             ) : (
               <h1 style={{ fontSize: '1.5rem', fontWeight: 900, margin: 0 }}>SuperFlow</h1>
             )}
+            <div style={{ height: '20px', width: '1px', backgroundColor: 'rgba(255,255,255,0.2)' }} />
+            <div style={{ fontSize: '0.875rem', fontWeight: 700 }}>
+              Olá, {profile?.first_name || 'Usuário'}
+            </div>
           </div>
           <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
             <div style={{ position: 'relative' }}>

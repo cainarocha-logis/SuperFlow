@@ -197,9 +197,6 @@ export const AdminDashboard = () => {
               </span>
             )}
           </button>
-          <button onClick={() => setActiveTab('CONFERENCIA')} style={navButtonStyle(activeTab === 'CONFERENCIA')}>
-            <LayoutDashboard size={20} /> Conferência
-          </button>
           <button onClick={() => setActiveTab('RELATORIOS')} style={navButtonStyle(activeTab === 'RELATORIOS')}>
             <FileSpreadsheet size={20} /> Relatórios
           </button>
@@ -241,7 +238,7 @@ export const AdminDashboard = () => {
               </div>
               <div style={{ backgroundColor: 'white', borderRadius: '0.75rem', padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', border: '1px solid #e2e8f0' }}>
                 <UserIcon size={18} color="#64748b" />
-                <span style={{ fontWeight: 600, color: '#1e293b' }}>Admin</span>
+                <span style={{ fontWeight: 600, color: '#1e293b' }}>{profile ? `${profile.first_name} ${profile.last_name}` : 'Admin'}</span>
               </div>
             </header>
 
@@ -323,8 +320,12 @@ export const AdminDashboard = () => {
                         onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'white'; }}
                       >
                         <td style={{ padding: '1rem' }}>
-                          <div style={{ fontWeight: 700, color: '#1e293b' }}>{exp.users?.first_name} {exp.users?.last_name}</div>
-                          <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>{exp.users?.email}</div>
+                          <div style={{ textAlign: 'left' }}>
+                            <div style={{ fontSize: '0.875rem', fontWeight: 800, color: '#1e293b' }}>
+                              {exp.users?.first_name} {exp.users?.last_name}
+                            </div>
+                            <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>{exp.users?.email}</div>
+                          </div>
                         </td>
                         <td style={{ padding: '1rem', fontSize: '0.8125rem', color: '#475569' }}>{exp.branches?.name}</td>
                         <td style={{ padding: '1rem' }}>

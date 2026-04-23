@@ -63,7 +63,13 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
         branch_id: expense.branch_id || (branches?.length === 1 ? branches[0].id : ''),
         expense_type_id: expense.expense_type_id || '',
         cost_center_id: expense.cost_center_id || '',
-        period_id: expense.period_id || (periods.find(p => p.status === 'ABERTO')?.id || (periods.length > 0 ? periods[0].id : '')),
+        period_id: expense.period_id || (() => {
+          const today = new Date().toISOString().split('T')[0];
+          // Tenta achar o período aberto que engloba hoje
+          const current = periods.find(p => p.status === 'ABERTO' && today >= p.start_date && today <= p.end_date);
+          // Se não achar por data, pega o primeiro aberto que encontrar
+          return current?.id || periods.find(p => p.status === 'ABERTO')?.id || (periods.length > 0 ? periods[0].id : '');
+        })(),
         observations: expense.observations || '',
         license_plate: expense.license_plate || '',
         customer_name: expense.customer_name || '',
