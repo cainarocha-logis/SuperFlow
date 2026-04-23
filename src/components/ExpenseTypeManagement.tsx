@@ -62,7 +62,7 @@ export const ExpenseTypeManagement = () => {
 
   return (
     <div className="glass-panel" style={{ padding: '2rem', backgroundColor: 'white' }}>
-      <form onSubmit={handleAdd} style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
         <input 
           type="text" 
           className="input-field" 
@@ -70,11 +70,16 @@ export const ExpenseTypeManagement = () => {
           value={newName}
           onChange={e => setNewName(e.target.value)}
           disabled={isSubmitting}
+          onKeyDown={e => {
+            if (e.key === 'Enter') {
+              handleAdd(e as any);
+            }
+          }}
         />
-        <button type="submit" className="btn-primary" style={{ whiteSpace: 'nowrap', padding: '0 2rem' }} disabled={isSubmitting}>
+        <button type="button" onClick={handleAdd} className="btn-primary" style={{ whiteSpace: 'nowrap', padding: '0 2rem' }} disabled={isSubmitting}>
           {isSubmitting ? 'SALVANDO...' : <><Plus size={18} /> ADICIONAR</>}
         </button>
-      </form>
+      </div>
 
       {errorMsg && (
         <div style={{ padding: '1rem', marginBottom: '1.5rem', backgroundColor: '#fee2e2', color: '#b91c1c', borderRadius: '0.5rem', fontWeight: 600 }}>
