@@ -75,16 +75,22 @@ export const LancadorDashboard = () => {
     
     try {
       // 1. Buscar anexo para apagar do storage
-      const { data: attachments } = await supabase.from('expense_attachments').select('storage_path').eq('expense_id', id);
+      const { data: attachments, error: fetchErr } = await supabase.from('expense_attachments').select('storage_path').eq('expense_id', id);
+      if (fetchErr) throw fetchErr;
+
       if (attachments && attachments.length > 0) {
-        await supabase.storage.from('receipts').remove(attachments.map(a => a.storage_path));
+        const { error: storageErr } = await supabase.storage.from('receipts').remove(attachments.map(a => a.storage_path));
+        if (storageErr) throw storageErr;
       }
       
-      // 2. Apagar do banco (cascade deve cuidar dos anexos, mas apagamos manual pra garantir)
-      await supabase.from('expenses').delete().eq('id', id);
+      // 2. Apagar do banco
+      const { error: deleteErr } = await supabase.from('expenses').delete().eq('id', id);
+      if (deleteErr) throw deleteErr;
+
       fetchExpenses();
     } catch (err: any) {
-      alert('Erro ao excluir rascunho: ' + err.message);
+      console.error('Erro detalhado:', err);
+      alert('Erro ao excluir rascunho: ' + (err.message || 'Verifique as permissões do banco.'));
     }
   };
 
