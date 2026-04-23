@@ -84,7 +84,7 @@ body {
 }
 
 .btn-primary {
-  background: #059669; /* Elegant deep green */
+  background: #2498CF; /* User requested tone */
   color: white;
   border-radius: 0.5rem; /* Subtle modern roundness */
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* Very subtle depth */
@@ -92,13 +92,13 @@ body {
 }
 
 .btn-primary:hover {
-  background: #047857; /* Darker green on hover */
+  background: #1e83b5; /* Slightly darker tone for hover */
   transform: none; /* Static as requested */
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .btn-primary:active {
-  background: #064e3b;
+  background: #186f9c;
   transform: none;
 }
 
