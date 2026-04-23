@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
 import { useSettings } from '../contexts/SettingsContext';
 import type { Tables } from '../types/database.types';
 import { BranchManagement } from '../components/BranchManagement';
@@ -32,6 +33,7 @@ import { formatCurrency, exportToCSV } from '../lib/utils';
 type TabType = 'CONFERENCIA' | 'RELATORIOS' | 'FILIAIS' | 'TIPOS' | 'CENTROS' | 'USUARIOS' | 'CONFIG';
 
 export const AdminDashboard = () => {
+  const { user, profile, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>('CONFERENCIA');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [expenses, setExpenses] = useState<(Tables<'expenses'> & { 
