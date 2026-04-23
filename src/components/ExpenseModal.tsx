@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { X, ZoomIn, ZoomOut, Save, Send, AlertCircle, CheckCircle, XCircle, History, Eye } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import type { Tables } from '../types/database.types';
 import { formatCurrency } from '../lib/utils';
 
 interface ExpenseModalProps {
   isOpen: boolean;
   onClose: () => void;
-  expense: any | null;
+  expense: Tables<'expenses'> | null;
   onSaved: () => void;
-  branches: any[];
-  expenseTypes: any[];
-  costCenters: any[];
-  periods: any[];
+  branches: Tables<'branches'>[];
+  expenseTypes: Tables<'expense_types'>[];
+  costCenters: Tables<'cost_centers'>[];
+  periods: Tables<'competency_periods'>[];
   isAdminView?: boolean;
 }
 
@@ -44,9 +45,9 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
   const [zoom, setZoom] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [logs, setLogs] = useState<any[]>([]);
+  const [logs, setLogs] = useState<Tables<'expense_audit_logs'>[]>([]);
 
-  const isReadOnly = isAdminView || (expense && ['ENVIADO', 'APROVADO', 'EM_ANALISE'].includes(expense.status));
+  const isReadOnly = !!(isAdminView || (expense && ['ENVIADO', 'APROVADO', 'EM_ANALISE'].includes(expense.status)));
   const selectedType = (expenseTypes || []).find((t: any) => t.id === formData.expense_type_id);
 
   useEffect(() => {
@@ -93,7 +94,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
   const fetchLogs = async (expenseId: string) => {
     try {
       const { data } = await supabase
-        .from('audit_logs')
+        .from('expense_audit_logs')
         .select('*')
         .eq('expense_id', expenseId)
         .order('created_at', { ascending: false });
@@ -119,6 +120,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
 
   const handleApprove = async () => {
     if (!window.confirm('Confirmar aprovação?')) return;
+    if (!expense) return;
     setLoading(true);
     try {
       const { error: rpcError } = await supabase.rpc('approve_expense', { p_expense_id: expense.id });
@@ -135,9 +137,10 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
   const handleReject = async () => {
     const reason = window.prompt('Motivo da rejeição:');
     if (!reason) return;
+    if (!expense) return;
     setLoading(true);
     try {
-      const { error: rpcError } = await supabase.rpc('reject_expense', { p_expense_id: expense.id, p_rejection_reason: reason });
+      const { error: rpcError } = await supabase.rpc('reject_expense', { p_expense_id: expense.id, p_reason: reason });
       if (rpcError) throw rpcError;
       onSaved();
       onClose();
@@ -153,6 +156,8 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
     setLoading(true);
     setError(null);
     try {
+      if (!expense) throw new Error('Despesa não encontrada');
+      
       const { error: updateError } = await supabase
         .from('expenses')
         .update({
@@ -236,17 +241,22 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
               <History size={14} /> Histórico da Nota
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {logs.length > 0 ? logs.map((log, i) => (
-                <div key={log.id} style={{ display: 'flex', gap: '0.75rem', position: 'relative' }}>
-                  {i < logs.length - 1 && <div style={{ position: 'absolute', left: '7px', top: '15px', bottom: '-15px', width: '1px', backgroundColor: '#cbd5e1' }} />}
-                  <div style={{ width: '15px', height: '15px', borderRadius: '50%', backgroundColor: logActionColor(log.action), zIndex: 2, marginTop: '3px', flexShrink: 0 }} />
-                  <div>
-                    <p style={{ fontSize: '0.8125rem', fontWeight: 700, margin: 0, color: '#334155' }}>{log.action}</p>
-                    {log.notes && <p style={{ fontSize: '0.75rem', margin: '2px 0', color: '#64748b' }}>{log.notes}</p>}
-                    <p style={{ fontSize: '0.65rem', color: '#94a3b8' }}>{new Date(log.created_at).toLocaleString('pt-BR')}</p>
+              {logs.length > 0 ? logs.map((log, i) => {
+                const actionName = log.new_status === 'APROVADO' ? 'APROVAÇÃO' : 
+                                 log.new_status === 'REJEITADO' ? 'REJEIÇÃO' : 
+                                 log.new_status === 'ENVIADO' ? 'ENVIO' : 'ATUALIZAÇÃO';
+                return (
+                  <div key={log.id} style={{ display: 'flex', gap: '0.75rem', position: 'relative' }}>
+                    {i < logs.length - 1 && <div style={{ position: 'absolute', left: '7px', top: '15px', bottom: '-15px', width: '1px', backgroundColor: '#cbd5e1' }} />}
+                    <div style={{ width: '15px', height: '15px', borderRadius: '50%', backgroundColor: logActionColor(actionName), zIndex: 2, marginTop: '3px', flexShrink: 0 }} />
+                    <div>
+                      <p style={{ fontSize: '0.8125rem', fontWeight: 700, margin: 0, color: '#334155' }}>{actionName}</p>
+                      {log.rejection_reason && <p style={{ fontSize: '0.75rem', margin: '2px 0', color: '#64748b' }}>{log.rejection_reason}</p>}
+                      <p style={{ fontSize: '0.65rem', color: '#94a3b8' }}>{new Date(log.created_at).toLocaleString('pt-BR')}</p>
+                    </div>
                   </div>
-                </div>
-              )) : <p style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Nenhum histórico disponível</p>}
+                );
+              }) : <p style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Nenhum histórico disponível</p>}
             </div>
           </div>
 

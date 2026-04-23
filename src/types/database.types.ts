@@ -231,6 +231,7 @@ export type Database = {
           observations: string | null
           period_id: string | null
           receipt_date: string | null
+          reimbursement_amount: number | null
           status: Database["public"]["Enums"]["expense_status"]
           submitted_at: string | null
           updated_at: string
@@ -250,6 +251,7 @@ export type Database = {
           observations?: string | null
           period_id?: string | null
           receipt_date?: string | null
+          reimbursement_amount?: number | null
           status?: Database["public"]["Enums"]["expense_status"]
           submitted_at?: string | null
           updated_at?: string
@@ -269,6 +271,7 @@ export type Database = {
           observations?: string | null
           period_id?: string | null
           receipt_date?: string | null
+          reimbursement_amount?: number | null
           status?: Database["public"]["Enums"]["expense_status"]
           submitted_at?: string | null
           updated_at?: string
@@ -380,6 +383,72 @@ export type Database = {
           registration_code?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           status?: Database["public"]["Enums"]["entity_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          id: string
+          user_id: string
+          expense_id: string | null
+          title: string
+          message: string
+          is_read: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          expense_id?: string | null
+          title: string
+          message: string
+          is_read?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          expense_id?: string | null
+          title?: string
+          message?: string
+          is_read?: boolean
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_expense_id_fkey"
+            columns: ["expense_id"]
+            isOneToOne: false
+            referencedRelation: "expenses"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      settings: {
+        Row: {
+          key: string
+          value: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          key: string
+          value: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          key?: string
+          value?: string
+          created_at?: string
           updated_at?: string
         }
         Relationships: []

@@ -16,7 +16,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useSettings } from '../contexts/SettingsContext';
-import { Tables } from '../types/database.types';
+import type { Tables } from '../types/database.types';
 import { BranchManagement } from '../components/BranchManagement';
 import { ExpenseTypeManagement } from '../components/ExpenseTypeManagement';
 import { CostCenterManagement } from '../components/CostCenterManagement';

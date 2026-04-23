@@ -13,7 +13,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { Tables } from '../types/database.types';
+import type { Tables } from '../types/database.types';
 import { useSettings } from '../contexts/SettingsContext';
 import { ExpenseModal } from '../components/ExpenseModal';
 import { formatCurrency } from '../lib/utils';
