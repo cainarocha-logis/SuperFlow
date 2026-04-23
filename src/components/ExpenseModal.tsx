@@ -63,7 +63,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
         branch_id: expense.branch_id || (branches?.length === 1 ? branches[0].id : ''),
         expense_type_id: expense.expense_type_id || '',
         cost_center_id: expense.cost_center_id || '',
-        period_id: expense.period_id || (periods.find(p => p.status === 'ATIVO')?.id || (periods.length > 0 ? periods[0].id : '')),
+        period_id: expense.period_id || (periods.find(p => p.status === 'ABERTO')?.id || (periods.length > 0 ? periods[0].id : '')),
         observations: expense.observations || '',
         license_plate: expense.license_plate || '',
         customer_name: expense.customer_name || '',
@@ -385,7 +385,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
                   <option value="">Selecione...</option>
                   {(periods || []).map((p: any) => (
                     <option key={p.id} value={p.id}>
-                      {p.name} {p.status === 'ATIVO' ? '(ATUAL)' : ''}
+                      {p.name} {p.status === 'ABERTO' ? '(ATUAL)' : ''}
                     </option>
                   ))}
                 </select>
