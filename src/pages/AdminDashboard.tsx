@@ -194,7 +194,9 @@ export const AdminDashboard = () => {
           height: '100vh', 
           overflowY: 'auto',
           transition: '0.3s ease',
-          zIndex: 100
+          zIndex: 100,
+          display: 'flex',
+          flexDirection: 'column'
         }}>
           {/* Mobile Close Button */}
           <div className="mobile-only" style={{ justifyContent: 'flex-end', marginBottom: '1rem' }}>
@@ -203,14 +205,7 @@ export const AdminDashboard = () => {
             </button>
           </div>
         <div style={{ marginBottom: '2.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          {logoUrl ? (
-            <img src={logoUrl} alt="Logo" style={{ height: '32px', maxWidth: '120px', objectFit: 'contain' }} />
-          ) : (
-            <div style={{ backgroundColor: 'white', padding: '0.5rem', borderRadius: '0.75rem' }}>
-              <LayoutDashboard size={24} color="var(--primary-dark)" />
-            </div>
-          )}
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 800 }}>SuperFlow</h1>
+          <h1 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Super Flow</h1>
         </div>
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           <button onClick={() => setActiveTab('CONFERENCIA')} style={navButtonStyle(activeTab === 'CONFERENCIA')}>
@@ -251,6 +246,12 @@ export const AdminDashboard = () => {
             <ImageIcon size={20} /> Visão do Lançador
           </button>
         </nav>
+
+        <div style={{ marginTop: 'auto', paddingTop: '2rem', display: 'flex', justifyContent: 'center' }}>
+          {logoUrl && (
+            <img src={logoUrl} alt="Logo da Empresa" style={{ maxWidth: '150px', maxHeight: '60px', objectFit: 'contain' }} />
+          )}
+        </div>
       </aside>
 
         <main style={{ flex: 1, padding: '0', overflowX: 'hidden' }}>
