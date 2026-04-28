@@ -39,10 +39,10 @@ export const AdminDashboard = () => {
   const { user, profile, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>('DASHBOARD');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [expenses, setExpenses] = useState<(Tables<'expenses'> & { 
-    users: { first_name: string, last_name: string, email: string } | null, 
-    branches: { name: string } | null, 
-    expense_types: { name: string } | null 
+  const [expenses, setExpenses] = useState<(Tables<'expenses'> & {
+    users: { first_name: string, last_name: string, email: string } | null,
+    branches: { name: string } | null,
+    expense_types: { name: string } | null
   })[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -104,7 +104,7 @@ export const AdminDashboard = () => {
     e.stopPropagation();
     if (profile?.role !== 'ADMIN') return;
     if (!window.confirm('Tem certeza que deseja excluir esta despesa permanentemente? Essa ação não pode ser desfeita.')) return;
-    
+
     try {
       const { error } = await supabase.from('expenses').delete().eq('id', id);
       if (error) throw error;
@@ -164,11 +164,11 @@ export const AdminDashboard = () => {
   return (
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f8fafc', flexDirection: 'column' }}>
       {/* Mobile Header */}
-      <header className="mobile-only" style={{ 
-        backgroundColor: 'var(--primary-dark)', 
-        padding: '1rem', 
-        color: 'white', 
-        justifyContent: 'space-between', 
+      <header className="mobile-only" style={{
+        backgroundColor: 'var(--primary-dark)',
+        padding: '1rem',
+        color: 'white',
+        justifyContent: 'space-between',
         alignItems: 'center',
         position: 'sticky',
         top: 0,
@@ -185,14 +185,14 @@ export const AdminDashboard = () => {
 
       <div style={{ display: 'flex', flex: 1 }}>
         {/* Sidebar */}
-        <aside className={`${isSidebarOpen ? 'show' : ''} sidebar-desktop`} style={{ 
-          width: '280px', 
-          backgroundColor: 'var(--primary-dark)', 
-          padding: '2rem 1.5rem', 
-          color: 'white', 
-          position: 'sticky', 
-          top: 0, 
-          height: '100vh', 
+        <aside className={`${isSidebarOpen ? 'show' : ''} sidebar-desktop`} style={{
+          width: '280px',
+          backgroundColor: 'var(--primary-dark)',
+          padding: '2rem 1.5rem',
+          color: 'white',
+          position: 'sticky',
+          top: 0,
+          height: '100vh',
           overflowY: 'auto',
           transition: '0.3s ease',
           zIndex: 100,
@@ -205,65 +205,65 @@ export const AdminDashboard = () => {
               <X size={24} />
             </button>
           </div>
-        <div style={{ marginBottom: '2.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Super Flow</h1>
-        </div>
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          <button onClick={() => setActiveTab('DASHBOARD')} style={navButtonStyle(activeTab === 'DASHBOARD')}>
-            <LayoutDashboard size={20} /> Dashboard
-          </button>
-          <button onClick={() => setActiveTab('CONFERENCIA')} style={navButtonStyle(activeTab === 'CONFERENCIA')}>
-            <History size={20} /> Conferência
-            {pendingCount > 0 && (
-              <span style={{ marginLeft: 'auto', backgroundColor: '#ef4444', color: 'white', fontSize: '0.65rem', padding: '0.1rem 0.5rem', borderRadius: '1rem', fontWeight: 900 }}>
-                {pendingCount}
-              </span>
+          <div style={{ marginBottom: '2.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <h1 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Super Flow</h1>
+          </div>
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <button onClick={() => setActiveTab('DASHBOARD')} style={navButtonStyle(activeTab === 'DASHBOARD')}>
+              <LayoutDashboard size={20} /> Dashboard
+            </button>
+            <button onClick={() => setActiveTab('CONFERENCIA')} style={navButtonStyle(activeTab === 'CONFERENCIA')}>
+              <History size={20} /> Conferência
+              {pendingCount > 0 && (
+                <span style={{ marginLeft: 'auto', backgroundColor: '#ef4444', color: 'white', fontSize: '0.65rem', padding: '0.1rem 0.5rem', borderRadius: '1rem', fontWeight: 900 }}>
+                  {pendingCount}
+                </span>
+              )}
+            </button>
+            <button onClick={() => setActiveTab('RELATORIOS')} style={navButtonStyle(activeTab === 'RELATORIOS')}>
+              <FileSpreadsheet size={20} /> Relatórios
+            </button>
+            {profile?.role === 'ADMIN' && (
+              <>
+                <button onClick={() => setActiveTab('REGISTROS')} style={navButtonStyle(activeTab === 'REGISTROS')}>
+                  <Database size={20} /> Registros
+                </button>
+                <button onClick={() => setActiveTab('FILIAIS')} style={navButtonStyle(activeTab === 'FILIAIS')}>
+                  <Building2 size={20} /> Filiais
+                </button>
+                <button onClick={() => setActiveTab('TIPOS')} style={navButtonStyle(activeTab === 'TIPOS')}>
+                  <Tag size={20} /> Categorias
+                </button>
+                <button onClick={() => setActiveTab('CENTROS')} style={navButtonStyle(activeTab === 'CENTROS')}>
+                  <FileText size={20} /> Centros de Custo
+                </button>
+                <button onClick={() => setActiveTab('USUARIOS')} style={navButtonStyle(activeTab === 'USUARIOS')}>
+                  <UserIcon size={20} /> Usuários
+                </button>
+                <button onClick={() => setActiveTab('CONFIG')} style={navButtonStyle(activeTab === 'CONFIG')}>
+                  <SettingsIcon size={20} /> Configurações
+                </button>
+              </>
             )}
-          </button>
-          <button onClick={() => setActiveTab('RELATORIOS')} style={navButtonStyle(activeTab === 'RELATORIOS')}>
-            <FileSpreadsheet size={20} /> Relatórios
-          </button>
-          {profile?.role === 'ADMIN' && (
-            <>
-              <button onClick={() => setActiveTab('REGISTROS')} style={navButtonStyle(activeTab === 'REGISTROS')}>
-                <Database size={20} /> Registros
-              </button>
-              <button onClick={() => setActiveTab('FILIAIS')} style={navButtonStyle(activeTab === 'FILIAIS')}>
-                <Building2 size={20} /> Filiais
-              </button>
-              <button onClick={() => setActiveTab('TIPOS')} style={navButtonStyle(activeTab === 'TIPOS')}>
-                <Tag size={20} /> Categorias
-              </button>
-              <button onClick={() => setActiveTab('CENTROS')} style={navButtonStyle(activeTab === 'CENTROS')}>
-                <FileText size={20} /> Centros de Custo
-              </button>
-              <button onClick={() => setActiveTab('USUARIOS')} style={navButtonStyle(activeTab === 'USUARIOS')}>
-                <UserIcon size={20} /> Usuários
-              </button>
-              <button onClick={() => setActiveTab('CONFIG')} style={navButtonStyle(activeTab === 'CONFIG')}>
-                <SettingsIcon size={20} /> Configurações
-              </button>
-            </>
-          )}
-          <div style={{ margin: '1.5rem 0', height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.1)' }} />
-          <button onClick={() => navigate('/lancador')} style={navButtonStyle(false)}>
-            <ImageIcon size={20} /> Visão do Lançador
-          </button>
-        </nav>
+            <div style={{ margin: '1.5rem 0', height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.1)' }} />
+            <button onClick={() => navigate('/lancador')} style={navButtonStyle(false)}>
+              <ImageIcon size={20} /> Visão do Lançador
+            </button>
+          </nav>
 
-        <div style={{ marginTop: 'auto', paddingTop: '2rem', display: 'flex', justifyContent: 'center' }}>
-          {logoUrl && (
-            <img src={logoUrl} alt="Logo da Empresa" style={{ maxWidth: '150px', maxHeight: '60px', objectFit: 'contain' }} />
-          )}
-        </div>
-      </aside>
+          <div style={{ marginTop: 'auto', paddingTop: '2rem', display: 'flex', justifyContent: 'center' }}>
+            {logoUrl && (
+              <img src={logoUrl} alt="Logo da Empresa" style={{ maxWidth: '150px', maxHeight: '60px', objectFit: 'contain' }} />
+            )}
+          </div>
+        </aside>
 
         <main style={{ flex: 1, padding: '0', overflowX: 'hidden' }}>
           <div className="container-padding">
             <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
               <div>
                 <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#1e293b' }}>
-                   {activeTab === 'DASHBOARD' && 'Dashboard Estratégico'}
+                  {activeTab === 'DASHBOARD' && 'Dashboard Estratégico'}
                   {activeTab === 'CONFERENCIA' && 'Conferência de Notas'}
                   {activeTab === 'RELATORIOS' && 'Relatórios e Exportação'}
                   {activeTab === 'REGISTROS' && 'Todos os Registros'}
@@ -280,145 +280,145 @@ export const AdminDashboard = () => {
               </div>
             </header>
 
-        {activeTab === 'CONFIG' && (
-          <div className="glass-panel" style={{ padding: '2rem', backgroundColor: 'white', maxWidth: '600px' }}>
-            <h3 style={{ fontWeight: 800, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <ImageIcon size={20} /> Logo da Empresa
-            </h3>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-              <div style={{ width: '120px', height: '120px', borderRadius: '1rem', border: '2px dashed #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f8fafc', overflow: 'hidden' }}>
-                {logoUrl ? <img src={logoUrl} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <ImageIcon size={40} color="#cbd5e1" />}
+            {activeTab === 'CONFIG' && (
+              <div className="glass-panel" style={{ padding: '2rem', backgroundColor: 'white', maxWidth: '600px' }}>
+                <h3 style={{ fontWeight: 800, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <ImageIcon size={20} /> Logo da Empresa
+                </h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+                  <div style={{ width: '120px', height: '120px', borderRadius: '1rem', border: '2px dashed #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f8fafc', overflow: 'hidden' }}>
+                    {logoUrl ? <img src={logoUrl} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <ImageIcon size={40} color="#cbd5e1" />}
+                  </div>
+                  <div>
+                    <p style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '1rem' }}>Upload da logo que aparecerá no topo de todas as telas (Recomendado: PNG fundo transparente).</p>
+                    <button onClick={() => fileRef.current?.click()} className="btn-primary" style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}>
+                      <Upload size={18} /> SELECIONAR ARQUIVO
+                    </button>
+                    <input type="file" ref={fileRef} style={{ display: 'none' }} accept="image/*" onChange={handleLogoUpload} />
+                  </div>
+                </div>
               </div>
-              <div>
-                <p style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '1rem' }}>Upload da logo que aparecerá no topo de todas as telas (Recomendado: PNG fundo transparente).</p>
-                <button onClick={() => fileRef.current?.click()} className="btn-primary" style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}>
-                  <Upload size={18} /> SELECIONAR ARQUIVO
-                </button>
-                <input type="file" ref={fileRef} style={{ display: 'none' }} accept="image/*" onChange={handleLogoUpload} />
-              </div>
-            </div>
-          </div>
-        )}
+            )}
 
-        {activeTab === 'CONFERENCIA' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <div className="glass-panel" style={{ padding: '1.25rem', backgroundColor: 'white', display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
-              <div style={{ flex: 1, minWidth: '200px', display: 'flex', alignItems: 'center', gap: '0.75rem', backgroundColor: '#f1f5f9', padding: '0.6rem 1rem', borderRadius: '0.5rem' }}>
-                <Search size={18} color="#94a3b8" />
-                <input
-                  type="text"
-                  placeholder="Buscar colaborador..."
-                  style={{ background: 'transparent', border: 'none', outline: 'none', width: '100%' }}
-                  value={searchTerm}
-                  onChange={e => setSearchTerm(e.target.value)}
-                />
-              </div>
-              <select value={advFilters.user_id} onChange={e => setAdvFilters(p => ({ ...p, user_id: e.target.value }))} style={{ padding: '0.6rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0', fontSize: '0.875rem' }}>
-                <option value="">Todos Usuários</option>
-                {usersList.map(u => <option key={u.id} value={u.id}>{u.first_name} {u.last_name}</option>)}
-              </select>
-              <select value={advFilters.branch_id} onChange={e => setAdvFilters(p => ({ ...p, branch_id: e.target.value }))} style={{ padding: '0.6rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0', fontSize: '0.875rem' }}>
-                <option value="">Todas Filiais</option>
-                {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
-              </select>
-              <select value={advFilters.period_id} onChange={e => setAdvFilters(p => ({ ...p, period_id: e.target.value }))} style={{ padding: '0.6rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0', fontSize: '0.875rem' }}>
-                <option value="">Todos Períodos</option>
-                {periods.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-              </select>
-              <select value={advFilters.expense_type_id} onChange={e => setAdvFilters(p => ({ ...p, expense_type_id: e.target.value }))} style={{ padding: '0.6rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0', fontSize: '0.875rem' }}>
-                <option value="">Todas Categorias</option>
-                {expenseTypes.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-              </select>
-              {(advFilters.branch_id || advFilters.period_id || advFilters.expense_type_id || advFilters.user_id) && (
-                <button onClick={() => setAdvFilters({ branch_id: '', period_id: '', expense_type_id: '', user_id: '' })} style={{ border: 'none', background: '#fee2e2', color: '#b91c1c', padding: '0.6rem', borderRadius: '0.5rem', cursor: 'pointer' }}>
-                  <X size={18} />
-                </button>
-              )}
-            </div>
-
-            <div className="glass-panel" style={{ padding: '0', overflow: 'hidden', backgroundColor: 'white' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
-                    <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.75rem', textTransform: 'uppercase', color: '#64748b' }}>Colaborador</th>
-                    <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.75rem', textTransform: 'uppercase', color: '#64748b' }}>Filial</th>
-                    <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.75rem', textTransform: 'uppercase', color: '#64748b' }}>Categoria</th>
-                    <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.75rem', textTransform: 'uppercase', color: '#64748b' }}>Valor</th>
-                    <th style={{ textAlign: 'right', padding: '1rem', fontSize: '0.75rem', textTransform: 'uppercase', color: '#64748b' }}>Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {loading ? (
-                    <tr><td colSpan={5} style={{ padding: '2rem', textAlign: 'center' }}>Carregando...</td></tr>
-                  ) : filteredExpenses.length === 0 ? (
-                    <tr><td colSpan={5} style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8' }}>Nenhuma despesa encontrada.</td></tr>
-                  ) : (
-                    filteredExpenses.map(exp => (
-                      <tr
-                        key={exp.id}
-                        onClick={() => setSelectedExpense(exp)}
-                        style={{ borderBottom: '1px solid #f1f5f9', cursor: 'pointer', transition: '0.2s' }}
-                        onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#f8fafc'; }}
-                        onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'white'; }}
-                      >
-                        <td style={{ padding: '1rem' }}>
-                          <div style={{ textAlign: 'left' }}>
-                            <div style={{ fontSize: '0.875rem', fontWeight: 800, color: '#1e293b' }}>
-                              {exp.users?.first_name} {exp.users?.last_name}
-                            </div>
-                            <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>{exp.users?.email}</div>
-                          </div>
-                        </td>
-                        <td style={{ padding: '1rem', fontSize: '0.8125rem', color: '#475569' }}>{exp.branches?.name}</td>
-                        <td style={{ padding: '1rem' }}>
-                          <span style={{ backgroundColor: '#f1f5f9', padding: '0.2rem 0.5rem', borderRadius: '1rem', fontSize: '0.7rem', fontWeight: 600 }}>
-                            {exp.expense_types?.name}
-                          </span>
-                        </td>
-                        <td style={{ padding: '1rem', fontWeight: 800, color: 'var(--primary-dark)' }}>{formatCurrency(Number(exp.amount))}</td>
-                        <td style={{ padding: '1rem', textAlign: 'right', display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
-                          <button style={{ background: 'none', border: 'none', color: 'var(--primary-dark)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 700, fontSize: '0.8125rem' }}>
-                            CONFERIR <ChevronRight size={14} />
-                          </button>
-                          {profile?.role === 'ADMIN' && (
-                            <button 
-                              onClick={(e) => handleDeleteExpense(exp.id, e)} 
-                              style={{ background: '#fee2e2', border: 'none', color: '#b91c1c', cursor: 'pointer', padding: '0.25rem 0.5rem', borderRadius: '0.25rem' }}
-                              title="Excluir Permanentemente"
-                            >
-                              <X size={14} />
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    ))
+            {activeTab === 'CONFERENCIA' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <div className="glass-panel" style={{ padding: '1.25rem', backgroundColor: 'white', display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                  <div style={{ flex: 1, minWidth: '200px', display: 'flex', alignItems: 'center', gap: '0.75rem', backgroundColor: '#f1f5f9', padding: '0.6rem 1rem', borderRadius: '0.5rem' }}>
+                    <Search size={18} color="#94a3b8" />
+                    <input
+                      type="text"
+                      placeholder="Buscar colaborador..."
+                      style={{ background: 'transparent', border: 'none', outline: 'none', width: '100%' }}
+                      value={searchTerm}
+                      onChange={e => setSearchTerm(e.target.value)}
+                    />
+                  </div>
+                  <select value={advFilters.user_id} onChange={e => setAdvFilters(p => ({ ...p, user_id: e.target.value }))} style={{ padding: '0.6rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0', fontSize: '0.875rem' }}>
+                    <option value="">Todos Usuários</option>
+                    {usersList.map(u => <option key={u.id} value={u.id}>{u.first_name} {u.last_name}</option>)}
+                  </select>
+                  <select value={advFilters.branch_id} onChange={e => setAdvFilters(p => ({ ...p, branch_id: e.target.value }))} style={{ padding: '0.6rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0', fontSize: '0.875rem' }}>
+                    <option value="">Todas Filiais</option>
+                    {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+                  </select>
+                  <select value={advFilters.period_id} onChange={e => setAdvFilters(p => ({ ...p, period_id: e.target.value }))} style={{ padding: '0.6rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0', fontSize: '0.875rem' }}>
+                    <option value="">Todos Períodos</option>
+                    {periods.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                  </select>
+                  <select value={advFilters.expense_type_id} onChange={e => setAdvFilters(p => ({ ...p, expense_type_id: e.target.value }))} style={{ padding: '0.6rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0', fontSize: '0.875rem' }}>
+                    <option value="">Todas Categorias</option>
+                    {expenseTypes.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                  </select>
+                  {(advFilters.branch_id || advFilters.period_id || advFilters.expense_type_id || advFilters.user_id) && (
+                    <button onClick={() => setAdvFilters({ branch_id: '', period_id: '', expense_type_id: '', user_id: '' })} style={{ border: 'none', background: '#fee2e2', color: '#b91c1c', padding: '0.6rem', borderRadius: '0.5rem', cursor: 'pointer' }}>
+                      <X size={18} />
+                    </button>
                   )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+                </div>
 
-        {activeTab === 'FILIAIS' && <BranchManagement />}
-        {activeTab === 'TIPOS' && <ExpenseTypeManagement />}
-        {activeTab === 'CENTROS' && <CostCenterManagement />}
-        {activeTab === 'USUARIOS' && <UserManagement />}
-        {activeTab === 'RELATORIOS' && <ReportsManagement />}
-        {activeTab === 'REGISTROS' && <RecordsManagement />}
-        {activeTab === 'DASHBOARD' && <ManagerDashboard profile={profile} />}
+                <div className="glass-panel" style={{ padding: '0', overflow: 'hidden', backgroundColor: 'white' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead>
+                      <tr style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
+                        <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.75rem', textTransform: 'uppercase', color: '#64748b' }}>Colaborador</th>
+                        <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.75rem', textTransform: 'uppercase', color: '#64748b' }}>Filial</th>
+                        <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.75rem', textTransform: 'uppercase', color: '#64748b' }}>Categoria</th>
+                        <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.75rem', textTransform: 'uppercase', color: '#64748b' }}>Valor</th>
+                        <th style={{ textAlign: 'right', padding: '1rem', fontSize: '0.75rem', textTransform: 'uppercase', color: '#64748b' }}>Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {loading ? (
+                        <tr><td colSpan={5} style={{ padding: '2rem', textAlign: 'center' }}>Carregando...</td></tr>
+                      ) : filteredExpenses.length === 0 ? (
+                        <tr><td colSpan={5} style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8' }}>Nenhuma despesa encontrada.</td></tr>
+                      ) : (
+                        filteredExpenses.map(exp => (
+                          <tr
+                            key={exp.id}
+                            onClick={() => setSelectedExpense(exp)}
+                            style={{ borderBottom: '1px solid #f1f5f9', cursor: 'pointer', transition: '0.2s' }}
+                            onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#f8fafc'; }}
+                            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'white'; }}
+                          >
+                            <td style={{ padding: '1rem' }}>
+                              <div style={{ textAlign: 'left' }}>
+                                <div style={{ fontSize: '0.875rem', fontWeight: 800, color: '#1e293b' }}>
+                                  {exp.users?.first_name} {exp.users?.last_name}
+                                </div>
+                                <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>{exp.users?.email}</div>
+                              </div>
+                            </td>
+                            <td style={{ padding: '1rem', fontSize: '0.8125rem', color: '#475569' }}>{exp.branches?.name}</td>
+                            <td style={{ padding: '1rem' }}>
+                              <span style={{ backgroundColor: '#f1f5f9', padding: '0.2rem 0.5rem', borderRadius: '1rem', fontSize: '0.7rem', fontWeight: 600 }}>
+                                {exp.expense_types?.name}
+                              </span>
+                            </td>
+                            <td style={{ padding: '1rem', fontWeight: 800, color: 'var(--primary-dark)' }}>{formatCurrency(Number(exp.amount))}</td>
+                            <td style={{ padding: '1rem', textAlign: 'right', display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+                              <button style={{ background: 'none', border: 'none', color: 'var(--primary-dark)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 700, fontSize: '0.8125rem' }}>
+                                CONFERIR <ChevronRight size={14} />
+                              </button>
+                              {profile?.role === 'ADMIN' && (
+                                <button
+                                  onClick={(e) => handleDeleteExpense(exp.id, e)}
+                                  style={{ background: '#fee2e2', border: 'none', color: '#b91c1c', cursor: 'pointer', padding: '0.25rem 0.5rem', borderRadius: '0.25rem' }}
+                                  title="Excluir Permanentemente"
+                                >
+                                  <X size={14} />
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
 
-        <ExpenseModal
-          isOpen={!!selectedExpense}
-          onClose={() => setSelectedExpense(null)}
-          expense={selectedExpense}
-          onSaved={fetchExpenses}
-          branches={branches}
-          expenseTypes={expenseTypes}
-          costCenters={costCenters}
-          periods={periods}
-          isAdminView={true}
-          canApprove={profile?.role === 'ADMIN'}
-        />
+            {activeTab === 'FILIAIS' && <BranchManagement />}
+            {activeTab === 'TIPOS' && <ExpenseTypeManagement />}
+            {activeTab === 'CENTROS' && <CostCenterManagement />}
+            {activeTab === 'USUARIOS' && <UserManagement />}
+            {activeTab === 'RELATORIOS' && <ReportsManagement />}
+            {activeTab === 'REGISTROS' && <RecordsManagement />}
+            {activeTab === 'DASHBOARD' && <ManagerDashboard profile={profile} />}
+
+            <ExpenseModal
+              isOpen={!!selectedExpense}
+              onClose={() => setSelectedExpense(null)}
+              expense={selectedExpense}
+              onSaved={fetchExpenses}
+              branches={branches}
+              expenseTypes={expenseTypes}
+              costCenters={costCenters}
+              periods={periods}
+              isAdminView={true}
+              canApprove={profile?.role === 'ADMIN'}
+            />
           </div>
         </main>
       </div>
