@@ -30,13 +30,14 @@ import { ExpenseModal } from '../components/ExpenseModal';
 import { UserManagement } from '../components/UserManagement';
 import { ReportsManagement } from '../components/ReportsManagement';
 import { RecordsManagement } from '../components/RecordsManagement';
+import { ManagerDashboard } from '../components/ManagerDashboard';
 import { formatCurrency, exportToCSV } from '../lib/utils';
 
-type TabType = 'CONFERENCIA' | 'RELATORIOS' | 'REGISTROS' | 'FILIAIS' | 'TIPOS' | 'CENTROS' | 'USUARIOS' | 'CONFIG';
+type TabType = 'DASHBOARD' | 'CONFERENCIA' | 'RELATORIOS' | 'REGISTROS' | 'FILIAIS' | 'TIPOS' | 'CENTROS' | 'USUARIOS' | 'CONFIG';
 
 export const AdminDashboard = () => {
   const { user, profile, signOut } = useAuth();
-  const [activeTab, setActiveTab] = useState<TabType>('CONFERENCIA');
+  const [activeTab, setActiveTab] = useState<TabType>('DASHBOARD');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [expenses, setExpenses] = useState<(Tables<'expenses'> & { 
     users: { first_name: string, last_name: string, email: string } | null, 
@@ -208,6 +209,9 @@ export const AdminDashboard = () => {
           <h1 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Super Flow</h1>
         </div>
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          <button onClick={() => setActiveTab('DASHBOARD')} style={navButtonStyle(activeTab === 'DASHBOARD')}>
+            <LayoutDashboard size={20} /> Dashboard
+          </button>
           <button onClick={() => setActiveTab('CONFERENCIA')} style={navButtonStyle(activeTab === 'CONFERENCIA')}>
             <History size={20} /> Conferência
             {pendingCount > 0 && (
@@ -259,6 +263,7 @@ export const AdminDashboard = () => {
             <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
               <div>
                 <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#1e293b' }}>
+                   {activeTab === 'DASHBOARD' && 'Dashboard Estratégico'}
                   {activeTab === 'CONFERENCIA' && 'Conferência de Notas'}
                   {activeTab === 'RELATORIOS' && 'Relatórios e Exportação'}
                   {activeTab === 'REGISTROS' && 'Todos os Registros'}
@@ -400,6 +405,7 @@ export const AdminDashboard = () => {
         {activeTab === 'USUARIOS' && <UserManagement />}
         {activeTab === 'RELATORIOS' && <ReportsManagement />}
         {activeTab === 'REGISTROS' && <RecordsManagement />}
+        {activeTab === 'DASHBOARD' && <ManagerDashboard profile={profile} />}
 
         <ExpenseModal
           isOpen={!!selectedExpense}
