@@ -33,7 +33,7 @@ import { RecordsManagement } from '../components/RecordsManagement';
 import { ManagerDashboard } from '../components/ManagerDashboard';
 import { formatCurrency, exportToCSV } from '../lib/utils';
 
-type TabType = 'DASHBOARD' | 'CONFERENCIA' | 'RELATORIOS' | 'REGISTROS' | 'FILIAIS' | 'TIPOS' | 'CENTROS' | 'USUARIOS' | 'CONFIG';
+type TabType = 'DASHBOARD' | 'CONFERENCIA' | 'RELATORIOS' | 'REGISTROS' | 'COMPROVANTES' | 'FILIAIS' | 'TIPOS' | 'CENTROS' | 'USUARIOS' | 'CONFIG';
 
 export const AdminDashboard = () => {
   const { user, profile, signOut } = useAuth();
@@ -42,7 +42,8 @@ export const AdminDashboard = () => {
   const [expenses, setExpenses] = useState<(Tables<'expenses'> & {
     users: { first_name: string, last_name: string, email: string } | null,
     branches: { name: string } | null,
-    expense_types: { name: string } | null
+    expense_types: { name: string } | null,
+    expense_attachments: { count: number }[] | null
   })[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -79,7 +80,7 @@ export const AdminDashboard = () => {
   const fetchExpenses = async () => {
     const { data } = await supabase
       .from('expenses')
-      .select('*, users(first_name, last_name, email), branches(name), expense_types(name)')
+      .select('*, users(first_name, last_name, email), branches(name), expense_types(name), expense_attachments(count)')
       .eq('status', 'ENVIADO')
       .order('created_at', { ascending: true });
     setExpenses(data || []);
@@ -223,6 +224,9 @@ export const AdminDashboard = () => {
             <button onClick={() => setActiveTab('RELATORIOS')} style={navButtonStyle(activeTab === 'RELATORIOS')}>
               <FileSpreadsheet size={20} /> Relatórios
             </button>
+            <button onClick={() => setActiveTab('COMPROVANTES')} style={navButtonStyle(activeTab === 'COMPROVANTES')}>
+              <ImageIcon size={20} /> Comprovantes
+            </button>
             {profile?.role === 'ADMIN' && (
               <>
                 <button onClick={() => setActiveTab('REGISTROS')} style={navButtonStyle(activeTab === 'REGISTROS')}>
@@ -272,6 +276,7 @@ export const AdminDashboard = () => {
                   {activeTab === 'TIPOS' && 'Tipos de Despesa'}
                   {activeTab === 'CENTROS' && 'Centros de Custo'}
                   {activeTab === 'USUARIOS' && 'Gerenciar Usuários'}
+                  {activeTab === 'COMPROVANTES' && 'Galeria de Comprovantes'}
                 </h2>
               </div>
               <div style={{ backgroundColor: 'white', borderRadius: '0.75rem', padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', border: '1px solid #e2e8f0' }}>
@@ -371,9 +376,16 @@ export const AdminDashboard = () => {
                             </td>
                             <td style={{ padding: '1rem', fontSize: '0.8125rem', color: '#475569' }}>{exp.branches?.name}</td>
                             <td style={{ padding: '1rem' }}>
-                              <span style={{ backgroundColor: '#f1f5f9', padding: '0.2rem 0.5rem', borderRadius: '1rem', fontSize: '0.7rem', fontWeight: 600 }}>
-                                {exp.expense_types?.name}
-                              </span>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <span style={{ backgroundColor: '#f1f5f9', padding: '0.2rem 0.5rem', borderRadius: '1rem', fontSize: '0.7rem', fontWeight: 600 }}>
+                                  {exp.expense_types?.name}
+                                </span>
+                                {exp.expense_attachments && (exp.expense_attachments as any)[0]?.count > 0 && (
+                                  <div title="Possui comprovante anexo" style={{ color: '#0369a1', display: 'flex' }}>
+                                    <ImageIcon size={14} />
+                                  </div>
+                                )}
+                              </div>
                             </td>
                             <td style={{ padding: '1rem', fontWeight: 800, color: 'var(--primary-dark)' }}>{formatCurrency(Number(exp.amount))}</td>
                             <td style={{ padding: '1rem', textAlign: 'right', display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
@@ -404,8 +416,53 @@ export const AdminDashboard = () => {
             {activeTab === 'CENTROS' && <CostCenterManagement />}
             {activeTab === 'USUARIOS' && <UserManagement />}
             {activeTab === 'RELATORIOS' && <ReportsManagement />}
-            {activeTab === 'REGISTROS' && <RecordsManagement />}
+            {activeTab === 'REGISTROS' && <RecordsManagement onViewRecord={(record) => setSelectedExpense(record)} />}
             {activeTab === 'DASHBOARD' && <ManagerDashboard profile={profile} />}
+            
+            {activeTab === 'COMPROVANTES' && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1.5rem' }}>
+                {loading ? (
+                  <p>Carregando galeria...</p>
+                ) : expenses.filter(e => e.expense_attachments && (e.expense_attachments as any)[0]?.count > 0).length === 0 ? (
+                  <p style={{ color: '#94a3b8' }}>Nenhum comprovante encontrado nas notas pendentes.</p>
+                ) : (
+                  expenses
+                    .filter(e => e.expense_attachments && (e.expense_attachments as any)[0]?.count > 0)
+                    .map(exp => (
+                    <div 
+                      key={exp.id} 
+                      onClick={() => setSelectedExpense(exp)}
+                      style={{ 
+                        backgroundColor: 'white', 
+                        borderRadius: '1rem', 
+                        overflow: 'hidden', 
+                        boxShadow: '0 4px 6px rgba(0,0,0,0.05)', 
+                        cursor: 'pointer',
+                        transition: 'transform 0.2s',
+                        border: '1px solid #e2e8f0'
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'}
+                      onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+                    >
+                      <div style={{ height: '150px', backgroundColor: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                        <ImageIcon size={40} color="#cbd5e1" />
+                        {/* Como não temos as URLs aqui, mostramos um placeholder elegante. 
+                            O usuário clica para abrir o modal completo com a imagem carregada. */}
+                      </div>
+                      <div style={{ padding: '0.75rem' }}>
+                        <div style={{ fontWeight: 800, fontSize: '0.875rem', color: '#1e293b', marginBottom: '0.25rem' }}>
+                          {exp.users?.first_name} {exp.users?.last_name}
+                        </div>
+                        <div style={{ fontSize: '0.75rem', color: '#64748b', display: 'flex', justifyContent: 'space-between' }}>
+                          <span>{exp.expense_types?.name}</span>
+                          <span style={{ fontWeight: 700, color: 'var(--primary-dark)' }}>{formatCurrency(Number(exp.amount))}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
 
             <ExpenseModal
               isOpen={!!selectedExpense}

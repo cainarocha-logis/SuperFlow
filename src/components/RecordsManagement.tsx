@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Trash2, Search, Filter, Loader2, X } from 'lucide-react';
+import { Trash2, Search, Filter, Loader2, X, Eye, FileImage } from 'lucide-react';
 import { formatCurrency } from '../lib/utils';
 import type { Tables } from '../types/database.types';
 
-export const RecordsManagement = () => {
+export const RecordsManagement = ({ onViewRecord }: { onViewRecord: (record: any) => void }) => {
   const [records, setRecords] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -18,9 +18,9 @@ export const RecordsManagement = () => {
     setLoading(true);
     const { data } = await supabase
       .from('expenses')
-      .select('*, users(first_name, last_name, email), branches(name), expense_types(name)')
+      .select('*, users(first_name, last_name, email), branches(name), expense_types(name), expense_attachments(count)')
       .order('created_at', { ascending: false })
-      .limit(500); // Trazendo os 500 registros mais recentes para evitar travamento
+      .limit(500);
     setRecords(data || []);
     setLoading(false);
   };
@@ -112,7 +112,14 @@ export const RecordsManagement = () => {
                     <div style={{ fontSize: '0.7rem', color: '#64748b' }}>{r.users?.email}</div>
                   </td>
                   <td style={{ padding: '1rem', fontSize: '0.8125rem' }}>
-                    <div style={{ color: '#475569', fontWeight: 600 }}>{r.expense_types?.name}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <div style={{ color: '#475569', fontWeight: 600 }}>{r.expense_types?.name}</div>
+                      {r.expense_attachments && (r.expense_attachments as any)[0]?.count > 0 && (
+                        <div title="Possui comprovante anexo" style={{ color: '#0369a1', display: 'flex' }}>
+                          <FileImage size={14} />
+                        </div>
+                      )}
+                    </div>
                     <div style={{ color: '#94a3b8' }}>{r.branches?.name}</div>
                   </td>
                   <td style={{ padding: '1rem' }}>
@@ -130,7 +137,14 @@ export const RecordsManagement = () => {
                   <td style={{ padding: '1rem', fontWeight: 800, color: 'var(--primary-dark)' }}>
                     {formatCurrency(Number(r.amount || 0))}
                   </td>
-                  <td style={{ padding: '1rem', textAlign: 'right' }}>
+                  <td style={{ padding: '1rem', textAlign: 'right', display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+                    <button 
+                      onClick={() => onViewRecord(r)} 
+                      style={{ background: '#f1f5f9', border: 'none', color: '#475569', cursor: 'pointer', padding: '0.5rem', borderRadius: '0.5rem', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+                      title="Consultar Detalhes e Comprovante"
+                    >
+                      <Eye size={16} />
+                    </button>
                     <button 
                       onClick={() => handleDelete(r.id)} 
                       style={{ background: '#fee2e2', border: 'none', color: '#b91c1c', cursor: 'pointer', padding: '0.5rem', borderRadius: '0.5rem', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}

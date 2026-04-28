@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, ZoomIn, ZoomOut, Save, Send, AlertCircle, CheckCircle, XCircle, History, Eye, Camera } from 'lucide-react';
+import { X, ZoomIn, ZoomOut, Save, Send, AlertCircle, CheckCircle, XCircle, History, Eye, Camera, Download, ExternalLink } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import type { Tables } from '../types/database.types';
 import { formatCurrency, parseBrazilianNumber } from '../lib/utils';
@@ -142,6 +142,26 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
       setError(e.message || 'Erro ao substituir foto');
     } finally {
       setUploadingPhoto(false);
+    }
+  };
+
+  const handleDownload = async () => {
+    if (!imageUrl) return;
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `comprovante_${expense?.id.slice(0, 8)}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Erro ao baixar:', err);
+      // Fallback: abre em nova aba
+      window.open(imageUrl, '_blank');
     }
   };
 
@@ -320,9 +340,12 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
             </div>
           )}
 
-          <div style={{ position: 'absolute', bottom: '1rem', right: '1rem', display: 'flex', gap: '0.5rem', background: 'rgba(255,255,255,0.9)', padding: '0.25rem', borderRadius: '2rem' }}>
-            <button onClick={() => setZoom(z => Math.max(0.5, z - 0.25))} style={{ background: 'none', border: 'none', padding: '0.5rem', cursor: 'pointer' }}><ZoomOut size={20} /></button>
-            <button onClick={() => setZoom(z => Math.min(3, z + 0.25))} style={{ background: 'none', border: 'none', padding: '0.5rem', cursor: 'pointer' }}><ZoomIn size={20} /></button>
+          <div style={{ position: 'absolute', bottom: '1rem', right: '1rem', display: 'flex', gap: '0.5rem', background: 'rgba(255,255,255,0.9)', padding: '0.25rem', borderRadius: '2rem', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}>
+            <button onClick={() => setZoom(z => Math.max(0.5, z - 0.25))} title="Diminuir Zoom" style={{ background: 'none', border: 'none', padding: '0.5rem', cursor: 'pointer', color: '#1e293b' }}><ZoomOut size={20} /></button>
+            <button onClick={() => setZoom(z => Math.min(3, z + 0.25))} title="Aumentar Zoom" style={{ background: 'none', border: 'none', padding: '0.5rem', cursor: 'pointer', color: '#1e293b' }}><ZoomIn size={20} /></button>
+            <div style={{ width: '1px', backgroundColor: '#e2e8f0', margin: '0.5rem 0' }} />
+            <button onClick={() => window.open(imageUrl || '', '_blank')} title="Ver em tela cheia" style={{ background: 'none', border: 'none', padding: '0.5rem', cursor: 'pointer', color: '#1e293b' }}><ExternalLink size={20} /></button>
+            <button onClick={handleDownload} title="Baixar Comprovante" style={{ background: 'none', border: 'none', padding: '0.5rem', cursor: 'pointer', color: '#1e293b' }}><Download size={20} /></button>
           </div>
         </div>
 
