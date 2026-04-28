@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Edit2, Check, X } from 'lucide-react';
+import { Plus, Trash2, Edit2, Check, X, Loader2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 export const ExpenseTypeManagement = () => {
@@ -45,14 +45,24 @@ export const ExpenseTypeManagement = () => {
 
   const handleUpdate = async (id: string) => {
     if (!editName.trim()) return;
+    setIsSubmitting(true);
     setErrorMsg(null);
     try {
-      const { error } = await supabase.from('expense_types').update({ name: editName.trim().toUpperCase() }).eq('id', id);
+      const { data, error } = await supabase
+        .from('expense_types')
+        .update({ name: editName.trim().toUpperCase() })
+        .eq('id', id)
+        .select();
+
       if (error) throw error;
+      if (!data || data.length === 0) throw new Error('A alteração não foi aplicada. Verifique se você tem permissão.');
+      
       setEditingId(null);
-      fetchTypes();
+      await fetchTypes();
     } catch (err: any) {
       setErrorMsg('Erro ao atualizar categoria: ' + (err.message || JSON.stringify(err)));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -104,9 +114,16 @@ export const ExpenseTypeManagement = () => {
                   value={editName}
                   onChange={e => setEditName(e.target.value)}
                   autoFocus
+                  disabled={isSubmitting}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') handleUpdate(type.id);
+                    if (e.key === 'Escape') setEditingId(null);
+                  }}
                 />
-                <button onClick={() => handleUpdate(type.id)} className="btn-primary" style={{ padding: '0.5rem' }}><Check size={18} /></button>
-                <button onClick={() => setEditingId(null)} style={{ background: '#64748b', border: 'none', borderRadius: '0.5rem', padding: '0.5rem', cursor: 'pointer', color: 'white' }}><X size={18} /></button>
+                <button onClick={() => handleUpdate(type.id)} className="btn-primary" style={{ padding: '0.5rem' }} disabled={isSubmitting}>
+                  {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : <Check size={18} />}
+                </button>
+                <button onClick={() => setEditingId(null)} style={{ background: '#64748b', border: 'none', borderRadius: '0.5rem', padding: '0.5rem', cursor: 'pointer', color: 'white' }} disabled={isSubmitting}><X size={18} /></button>
               </div>
             ) : (
               <>
